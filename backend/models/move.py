@@ -1,8 +1,7 @@
 from dataclasses import dataclass
+from backend.models.placement import Placement
 
 @dataclass(frozen=True)
 class Move:
-    piece_id: int
-    anchor: tuple[int, int]
-    rotation: int
+    placement: Placement
     move_timestamp: int
