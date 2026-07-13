@@ -2,7 +2,12 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app) # To włącza CORS dla całej aplikacji
+CORS(app)
+# resources={
+#     r"/api/*": {
+#         "origins": "http://localhost:3000"
+#     }
+# }
 
 @app.route('/', methods=['GET'])
 def get_data():
