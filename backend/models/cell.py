@@ -5,4 +5,4 @@ from backend.models.piece import EMPTY_TILE
 @dataclass
 class Cell:
     player_color: PlayerColor = PlayerColor.NEUTRAL
-    piece_id: str = EMPTY_TILE
+    piece_id: int = EMPTY_TILE

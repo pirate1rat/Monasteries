@@ -25,121 +25,121 @@ class PiecePrefab:
 
 
 PIECE_CATALOG: dict[str, PiecePrefab] = {
-    "CH" : PiecePrefab(
+    0 : PiecePrefab(
         [(0, 0), (0, -1), (1, 0), (0, 1), (0, 2), (-1, 0)],
         6, PlayerColor.NEUTRAL, "Cathedral", 1
     ),
 
-    "TVW" : PiecePrefab(
+    1 : PiecePrefab(
         [(0, 0)],
         1, PlayerColor.WHITE, "Tavern_white", 2
     ),
 
-    "TVR" : PiecePrefab(
+    2 : PiecePrefab(
         [(0, 0)],
         1, PlayerColor.RED, "Tavern_red", 2
     ),
 
-    "STW" : PiecePrefab(
+    3 : PiecePrefab(
         [(0, 0), (0, -1)],
         2, PlayerColor.WHITE, "Stable_white", 2
     ),
 
-    "STR" : PiecePrefab(
+    4 : PiecePrefab(
         [(0, 0), (0, -1)],
         2, PlayerColor.RED, "Stable_red", 2
     ),
 
-    "INW" : PiecePrefab(
+    5 : PiecePrefab(
         [(0, 0), (1, 0), (0, -1)],
         3, PlayerColor.WHITE, "Inn_white", 2
     ),
 
-    "INR" : PiecePrefab(
+    6 : PiecePrefab(
         [(0, 0), (1, 0), (0, -1)],
         3, PlayerColor.RED, "Inn_red", 2
     ),
 
-    "BW" : PiecePrefab(
+    7 : PiecePrefab(
         [(0, 0), (0, -1), (0, 1)],
         3, PlayerColor.WHITE, "Bridge_white", 1
     ),
 
-    "BR" : PiecePrefab(
+    8 : PiecePrefab(
         [(0, 0), (0, -1), (0, 1)],
         3, PlayerColor.RED, "Bridge_red", 1
     ),
 
-    "SQW" : PiecePrefab(
+    9 : PiecePrefab(
         [(0, 0), (1, 0), (1, 1), (0, 1)],
         4, PlayerColor.WHITE, "Square_white", 1
     ),
 
-    "SQR" : PiecePrefab(
+    10 : PiecePrefab(
         [(0, 0), (1, 0), (1, 1), (0, 1)],
         4, PlayerColor.RED, "Square_red", 1
     ),
 
-    "MW" : PiecePrefab(
+    11 : PiecePrefab(
         [(0, 0), (1, 0), (0, 1), (-1, 0)],
         4, PlayerColor.WHITE, "Manor_white", 1
     ),
 
-    "MR" : PiecePrefab(
+    12 : PiecePrefab(
         [(0, 0), (1, 0), (0, 1), (-1, 0)],
         4, PlayerColor.RED, "Manor_red", 1
     ),
 
-    "ABW" : PiecePrefab(
+    13 : PiecePrefab(
         [(0, 0), (1, 0), (0, 1), (-1, 1)],
         4, PlayerColor.WHITE, "Abbey_white", 1
     ),
 
-    "ABR" : PiecePrefab(
+    14 : PiecePrefab(
         [(0, 0), (1, 1), (0, 1), (1, 0)],
         4, PlayerColor.RED, "Abbey_red", 1
     ),
 
-    "ACW" : PiecePrefab(
+    15 : PiecePrefab(
         [(0, 0), (1, 0), (0, 1), (-1, -1), (0, -1)],
         5, PlayerColor.WHITE, "Academy_white", 1
     ),
 
-    "ACR" : PiecePrefab(
+    16 : PiecePrefab(
         [(0, 0), (0, -1), (1, -1), (0, 1), (-1, 0)],
         5, PlayerColor.RED, "Academy_red", 1
     ),
 
-    "IFW" : PiecePrefab(
+    17 : PiecePrefab(
         [(0, 0), (0, -1), (1, 0), (0, 1), (-1, 0)],
         5, PlayerColor.WHITE, "Infirmary_white", 1
     ),
 
-    "IFR" : PiecePrefab(
+    18 : PiecePrefab(
         [(0, 0), (0, -1), (1, 0), (0, 1), (-1, 0)],
         5, PlayerColor.RED, "Infirmary_red", 1
     ),
 
-    "CSW" : PiecePrefab(
+    19 : PiecePrefab(
         [(0, 0), (1, 0), (1, 1), (-1, 1), (-1, 0)],
         5, PlayerColor.WHITE, "Castle_white", 1
     ),
 
-    "CSR" : PiecePrefab(
+    20 : PiecePrefab(
         [(0, 0), (1, 0), (1, 1), (-1, 1), (-1, 0)],
         5, PlayerColor.RED, "Castle_red", 1
     ),
 
-    "TWW" : PiecePrefab(
+    21 : PiecePrefab(
         [(0, 0), (0, -1), (1, -1), (-1, 1), (-1, 0)],
         5, PlayerColor.RED, "Tower_white", 1
     ),
 
-    "TWR" : PiecePrefab(
+    22 : PiecePrefab(
         [(0, 0), (0, -1), (1, -1), (-1, 1), (-1, 0)],
         5, PlayerColor.RED, "Tower_red", 1
     ),
 }
 
 PASS_TURN_ID = "PASS"
-EMPTY_TILE = "EMPTY"
+EMPTY_TILE = -1
