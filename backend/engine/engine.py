@@ -1,117 +1,161 @@
 from backend.models.enums import GameResult, PlayerColor
 from backend.models.piece import PIECE_CATALOG, EMPTY_TILE, NEIGHBOR_OFFSETS
+from backend.models.placement import Placement
 from queue import Queue
 from itertools import product
 
 from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
     from backend.engine.board import Board
+
+OPPOSITE = {
+    PlayerColor.WHITE: PlayerColor.RED,
+    PlayerColor.RED:   PlayerColor.WHITE,
+}
 
 class Engine:
     @staticmethod
     def get_rotated_piece(piece_id: int, rotation: int) -> list[tuple[int, int]]:
-        new_shape = list(PIECE_CATALOG[piece_id].shape)
-        
-        for _ in range(rotation):
-            new_shape = [(-y, x) for x, y in new_shape]
+        shape = list(PIECE_CATALOG[piece_id].shape)
 
-        return new_shape
+        for _ in range(rotation % 4):
+            shape = [(-y, x) for x, y in shape]
+        
+        return shape
 
     @staticmethod
     def validate_move(
-            board: "Board",
+            board: Board,
             piece_id: int,
             anchor: tuple[int, int],
             rotation: int,
             color: PlayerColor) -> bool:
+
         piece = Engine.get_rotated_piece(piece_id, rotation)
+        ax, ay = anchor
 
-        for x_offset, y_offset in piece:
-            x, y = anchor
+        opp_territory = board.territories.get(OPPOSITE.get(color), set())
 
-            # is on board
-            if not ((0 <= x + x_offset < 10) and (0 <= y + y_offset < 10)):
+        for dx, dy in piece:
+            x, y = ax + dx, ay + dy
+            if not (0 <= x < 10 and 0 <= y < 10):
                 return False
-            # does overlap with other piece
-            if board.grid[y + y_offset][x + x_offset].piece_id != EMPTY_TILE:
+            if board.grid[y][x].piece_id != EMPTY_TILE:
                 return False
-        
-        # is on territory
-        opposite = {
-            PlayerColor.WHITE: PlayerColor.RED,
-            PlayerColor.RED: PlayerColor.WHITE,
-        }
-
-        if opposite.get(color, False) and anchor in board.territories[opposite[color]]:
-            return False
+            if (x, y) in opp_territory:
+                return False
 
         return True
 
     @staticmethod
-    def calculate_territory(board: "Board", position: tuple[int, int]) -> tuple[PlayerColor, list[tuple[int, int]]]:
-        discovered_colors = set()
-        discovered_pieces = set()
-        tiles = set()
+    def calculate_territory(board: Board, position: tuple[int, int]) -> tuple[PlayerColor, set[tuple[int, int]], list[Placement]]:
+        """
+        BFS starting from `position`.
+        Returns (owner, empty_tiles, internal_pieces).
 
-        def _bfs(start):
-            nonlocal discovered_colors, discovered_pieces
-            q = Queue()
-            q.put(start)
-            board.bfs_iter += 1
-            k = board.bfs_iter
+        Division into two classes of pieces:
+        - boundary: they form the territory wall and determine the owner
+        - internal: completely surrounded by the empty tiles of the territory,
+                    subject to the capturing rule (max. 1 piece)
+        """
 
-            while not q.empty():
-                x, y = q.get()
+        def get_piece_cells(p: Placement) -> frozenset[tuple[int, int]]:
+            ax, ay = p.anchor
+            return frozenset(
+                (ax + dx, ay + dy)
+                for dx, dy in Engine.get_rotated_piece(p.piece_id, p.rotation)
+            )
 
-                if not ((0 <= x < 10) and (0 <= y < 10)):
-                    continue
-                if board.bfs_grid[y][x] == k:
-                    continue
-                board.bfs_grid[y][x] = k
-                if board.grid[y][x].piece_id != EMPTY_TILE:
-                    discovered_colors.add(board.grid[y][x].player_color)
-                    discovered_pieces.add(board.grid[y][x].piece_id)
-                else:
-                    tiles.add((x, y))
-                    for dx, dy in NEIGHBOR_OFFSETS:
-                        q.put((x + dx, y + dy))
-        
-        _bfs(position)
-        if len(discovered_colors) == 0 or PlayerColor.NEUTRAL in discovered_colors:
-            return (PlayerColor.NEUTRAL, tiles)
-        elif len(discovered_colors) == 1:
-            return (discovered_colors.pop(), tiles)
-        else:
-            white = len({x for x in discovered_pieces if x % 2 == 1})
-            red = len({x for x in discovered_pieces if x % 2 == 0 and x != 0})
-            if abs(white - red) > 1:
-                return (PlayerColor.NEUTRAL, tiles)
-            elif white > red:
-                return (PlayerColor.WHITE, tiles)
+        tiles: set[tuple[int, int]] = set()
+        discovered_non_empty: set[tuple[int, int]] = set()
+        q: Queue = Queue()
+
+        q.put(position)
+        board.bfs_iter += 1
+        k = board.bfs_iter
+
+        while not q.empty():
+            x, y = q.get()
+
+            if not (0 <= x < 10 and 0 <= y < 10):
+                continue
+            if board.bfs_grid[y][x] == k:
+                continue
+            board.bfs_grid[y][x] = k
+
+            if board.grid[y][x].piece_id != EMPTY_TILE:
+                discovered_non_empty.add((x, y))
             else:
-                return (PlayerColor.RED, tiles)
+                tiles.add((x, y))
+                for dx, dy in NEIGHBOR_OFFSETS:
+                    q.put((x + dx, y + dy))
+
+        potentially_interior: set[tuple[int, int]] = set()
+        candidates: list[tuple[Placement, frozenset]] = []
+
+        for placement in board.placements.values():
+            cells = get_piece_cells(placement)
+            if cells.issubset(discovered_non_empty):
+                potentially_interior.update(cells)
+                candidates.append((placement, cells))
+
+        interior_pieces: list[Placement] = []
+        interior_cells: set[tuple[int, int]] = set()
+
+        for placement, cells in candidates:
+            is_interior = True
+            for px, py in cells:
+                for dx, dy in NEIGHBOR_OFFSETS:
+                    nx, ny = px + dx, py + dy
+                    if not (0 <= nx < 10 and 0 <= ny < 10):
+                        continue
+                    if (nx, ny) not in tiles and (nx, ny) not in potentially_interior:
+                        is_interior = False
+                        break
+                if not is_interior:
+                    break
+            if is_interior:
+                interior_pieces.append(placement)
+                interior_cells.update(cells)
+
+        border_colors = {
+            board.grid[y][x].player_color
+            for x, y in (discovered_non_empty - interior_cells)
+        }
+        border_colors.discard(PlayerColor.NEUTRAL)
+
+        if len(border_colors) == 1:
+            owner = border_colors.pop()
+        else:
+            owner = PlayerColor.NEUTRAL
+
+        return (owner, tiles, interior_pieces)
 
     @staticmethod
-    def has_possible_moves(board: "Board", color: PlayerColor, remaining_pices: list[int]) -> bool:
+    def has_possible_moves(board: Board, color: PlayerColor, remaining_pieces: list[int]) -> bool:
         return any(
             Engine.validate_move(board, piece_id, (x, y), rot, color)
-            for piece_id in remaining_pices
+            for piece_id in remaining_pieces
             for x, y in product(range(10), repeat=2)
-            if  board.grid[y][x].piece_id == EMPTY_TILE
+            if board.grid[y][x].piece_id == EMPTY_TILE
             for rot in range(4)
         )
 
     @staticmethod
-    def check_game_over(board: "Board", white_remaining_pices: list[int], red_remaining_pices: list[int]) -> GameResult | None:
-        if Engine.has_possible_moves(board, PlayerColor.WHITE, white_remaining_pices) \
-        or Engine.has_possible_moves(board, PlayerColor.RED, red_remaining_pices): return None
+    def check_game_over(board: Board, white_remaining: list[int], red_remaining: list[int]) -> GameResult | None:
+        if Engine.has_possible_moves(board, PlayerColor.WHITE, white_remaining) \
+        or Engine.has_possible_moves(board, PlayerColor.RED,   red_remaining):
+            return None
+
+        white_remaining_tiles = sum(PIECE_CATALOG[pid].size for pid in white_remaining)
+        red_remaining_tiles = sum(PIECE_CATALOG[pid].size for pid in red_remaining)
+
+        if white_remaining_tiles == red_remaining_tiles:
+            return GameResult.DRAW
+        elif white_remaining_tiles < red_remaining_tiles:
+            return GameResult.WHITE_WINS
         else:
-            white_score = sum(PIECE_CATALOG[piece_id].size for piece_id in white_remaining_pices)
-            red_score = sum(PIECE_CATALOG[piece_id].size for piece_id in red_remaining_pices)
-            if white_score == red_score: return GameResult.DRAW
-            elif white_score > red_score: return GameResult.WHITE_WINS
-            else: return GameResult.RED_WINS
+            return GameResult.RED_WINS
 
     @staticmethod
     def reconstruct_from_moves(moves: str) -> Board:

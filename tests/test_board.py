@@ -21,7 +21,7 @@ def test_place_piece_valid(empty_board):
     # Placing it at the center (5, 5) with rotation 0.
     success = empty_board.place_piece(piece_id=0, anchor=(5, 5), rotation=0, color=PlayerColor.NEUTRAL)
     
-    assert success is not False # place_piece currently does not return True, but should not return False
+    assert success is not None
     
     # Verify that the piece anchor is placed correctly
     assert empty_board.grid[5][5].piece_id == 0
@@ -37,7 +37,7 @@ def test_place_piece_out_of_bounds(empty_board):
     # Attempt to place a piece close to the right edge so that part of it goes outside the grid
     success = empty_board.place_piece(piece_id=0, anchor=(9, 9), rotation=0, color=PlayerColor.NEUTRAL)
     
-    assert success is False
+    assert success is None
     assert empty_board.grid[9][9].piece_id == EMPTY_TILE
 
 def test_place_piece_overlap(empty_board):
@@ -47,7 +47,7 @@ def test_place_piece_overlap(empty_board):
     # Attempt to place another piece in the exact same location (using Red Player's Tower: id 22)
     success = empty_board.place_piece(piece_id=22, anchor=(5, 5), rotation=0, color=PlayerColor.RED)
     
-    assert success is False
+    assert success is None
     assert empty_board.grid[5][5].piece_id == 0 # The original piece should remain
 
 def test_remove_piece(empty_board):
@@ -55,12 +55,11 @@ def test_remove_piece(empty_board):
     # Simulate adding to the placements dictionary, which normally happens in a higher layer
     from backend.models.placement import Placement
     anchor = (5, 5)
-    empty_board.placements[PlayerColor.NEUTRAL] = {anchor: Placement(0, anchor, 0, PlayerColor.NEUTRAL)}
     
     empty_board.place_piece(piece_id=0, anchor=anchor, rotation=0, color=PlayerColor.NEUTRAL)
     
     # Remove the piece
-    empty_board.remove_piece(anchor)
+    empty_board.remove_piece("0_0")
     
     # Verify that the cells are empty again
     assert empty_board.grid[5][5].piece_id == EMPTY_TILE

@@ -7,6 +7,7 @@ Execution:
 
 import pytest
 from backend.engine.engine import Engine
+from backend.engine.board import Board
 from backend.models.enums import PlayerColor, GameResult
 from backend.models.piece import EMPTY_TILE
 from backend.models.cell import Cell
@@ -15,6 +16,11 @@ from backend.models.cell import Cell
 def set_cell(board, x: int, y: int, color: PlayerColor, piece_id: int):
     """Helper to manually set board cell states in tests."""
     board.grid[y][x] = Cell(player_color=color, piece_id=piece_id)
+
+@pytest.fixture
+def board():
+    return Board()
+
 
 # ============================================================
 # Engine.get_rotated_piece
@@ -31,34 +37,31 @@ class TestGetRotatedPiece:
 
     def test_rotation_0_returns_original_shape(self):
         """Rotation 0 does not alter the shape."""
-        result = Engine.get_rotated_piece(3, 0)   # [(0,0),(1,0)]
-        assert set(result) == {(0, 0), (1, 0)}
+        result = Engine.get_rotated_piece(3, 0)   # ((0, 0), (0, -1))
+        assert set(result) == {(0, 0), (0, 1)}
 
     def test_rotation_0_single_cell(self):
-        result = Engine.get_rotated_piece(1, 0)   # [(0,0)]
+        result = Engine.get_rotated_piece(1, 0)   # ((0,0))
         assert result == [(0, 0)]
 
     def test_rotation_1_horizontal_to_vertical(self):
         """
-        [(0,0),(1,0)] rotated by 90°:
+        [(0, 0), (0, 1)] rotated by 90° clockwise:
           (0,0) → (0, 0)
-          (1,0) → (0, 1)
+          (0,1) → (-1, 0)
         """
         result = Engine.get_rotated_piece(3, 1)
-        assert set(result) == {(0, 0), (0, 1)}, (
-            "BUG in get_rotated_piece: enumerate returns (index, value), "
-            "but the code attempts to unpack ((x,y), i)"
-        )
+        assert set(result) == {(0, 0), (-1, 0)}
 
     def test_rotation_2_is_point_reflection(self):
         """Two 90° rotations = 180° rotation: (x,y) → (-x,-y)"""
         result = Engine.get_rotated_piece(3, 2)
-        assert set(result) == {(0, 0), (-1, 0)}
+        assert set(result) == {(0, 0), (0, -1)}
 
     def test_rotation_3_is_270_degrees(self):
         """Three rotations: (x,y) → (y,-x)"""
         result = Engine.get_rotated_piece(3, 3)
-        assert set(result) == {(0, 0), (0, -1)}
+        assert set(result) == {(0, 0), (1, 0)}
 
     def test_rotation_4_equals_rotation_0(self):
         """Four rotations = full rotation = original shape."""
@@ -102,12 +105,12 @@ class TestValidateMove:
         assert Engine.validate_move(board, 1, (9, 9), 0, PlayerColor.WHITE) is True
 
     def test_invalid_out_of_bounds_right(self, board):
-        """A 1x2 piece placed at the right edge – goes out of bounds."""
-        assert Engine.validate_move(board, 3, (9, 5), 0, PlayerColor.WHITE) is False
+        """A 1x2 piece placed at the right edge with 270° rotation goes out of bounds."""
+        assert Engine.validate_move(board, 3, (9, 5), 3, PlayerColor.WHITE) is False
 
     def test_invalid_out_of_bounds_bottom(self, board):
-        """A 1x2 piece placed at the bottom edge with 90° rotation."""
-        assert Engine.validate_move(board, 3, (5, 9), 1, PlayerColor.WHITE) is False
+        """A 1x2 piece placed at the bottom"""
+        assert Engine.validate_move(board, 3, (5, 9), 0, PlayerColor.WHITE) is False
 
     def test_invalid_out_of_bounds_negative(self, board):
         """Anchor outside the board."""
@@ -122,7 +125,7 @@ class TestValidateMove:
     def test_invalid_partial_overlap(self, board):
         """A 1x2 piece: one cell is empty, the other is occupied."""
         set_cell(board, 6, 5, PlayerColor.WHITE, 1)
-        assert Engine.validate_move(board, 3, (5, 5), 0, PlayerColor.WHITE) is False
+        assert Engine.validate_move(board, 3, (6, 4), 0, PlayerColor.WHITE) is False
 
     def test_invalid_placement_in_enemy_territory(self, board):
         """Cannot place a piece on opponent's territory (anchor in territory)."""
@@ -144,8 +147,8 @@ class TestValidateMove:
         assert Engine.validate_move(board, 3, (8, 5), 0, PlayerColor.WHITE) is True
 
     def test_long_piece_out_of_bounds(self, board):
-        """A 1x3 piece with anchor (8,5) – goes out of bounds."""
-        assert Engine.validate_move(board, 7, (8, 5), 0, PlayerColor.WHITE) is False
+        """A 1x3 piece with anchor (5,9) | goes out of bounds."""
+        assert Engine.validate_move(board, 7, (5, 9), 0, PlayerColor.WHITE) is False
 
     def test_both_players_can_place_on_empty_board(self, board):
         """Both players can place pieces on an empty board."""
@@ -168,7 +171,7 @@ class TestCalculateTerritory:
 
     def test_open_region_is_neutral(self, board):
         """An empty cell connected to the rest of the empty board → NEUTRAL."""
-        owner, tiles = Engine.calculate_territory(board, (5, 5))
+        owner, tiles, interior_pieces = Engine.calculate_territory(board, (5, 5))
         assert owner == PlayerColor.NEUTRAL
 
     def test_single_empty_cell_surrounded_by_white(self, board):
@@ -183,7 +186,7 @@ class TestCalculateTerritory:
                     continue
                 set_cell(board, cx + dx, cy + dy, PlayerColor.WHITE, 1)
 
-        owner, tiles = Engine.calculate_territory(board, (cx, cy))
+        owner, tiles, interior_pieces = Engine.calculate_territory(board, (cx, cy))
         assert owner == PlayerColor.WHITE
         assert (cx, cy) in tiles
 
@@ -195,7 +198,7 @@ class TestCalculateTerritory:
                     continue
                 set_cell(board, cx + dx, cy + dy, PlayerColor.RED, 2)
 
-        owner, tiles = Engine.calculate_territory(board, (cx, cy))
+        owner, tiles, interior_pieces = Engine.calculate_territory(board, (cx, cy))
         assert owner == PlayerColor.RED
         assert (cx, cy) in tiles
 
@@ -216,7 +219,7 @@ class TestCalculateTerritory:
             pid = 1 if color == PlayerColor.WHITE else 2
             set_cell(board, nx, ny, color, pid)
 
-        owner, _ = Engine.calculate_territory(board, (cx, cy))
+        owner, _, _ = Engine.calculate_territory(board, (cx, cy))
         assert owner == PlayerColor.NEUTRAL
 
     def test_territory_tiles_contains_all_empty_cells(self, board):
@@ -228,7 +231,7 @@ class TestCalculateTerritory:
         set_cell(board, 4, 5, PlayerColor.WHITE, 1)
         set_cell(board, 7, 5, PlayerColor.WHITE, 1)
 
-        owner, tiles = Engine.calculate_territory(board, (5, 5))
+        owner, tiles, interior_pieces = Engine.calculate_territory(board, (5, 5))
         assert (5, 5) in tiles
         assert (6, 5) in tiles
 
@@ -241,7 +244,7 @@ class TestCalculateTerritory:
                     continue
                 set_cell(board, cx + dx, cy + dy, PlayerColor.WHITE, 1)
 
-        _, tiles = Engine.calculate_territory(board, (cx, cy))
+        _, tiles, interior_pieces = Engine.calculate_territory(board, (cx, cy))
         for (tx, ty) in tiles:
             assert board.grid[ty][tx].piece_id == EMPTY_TILE, \
                 f"Cell ({tx},{ty}) containing a piece was found in the tiles set"

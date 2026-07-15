@@ -36,32 +36,32 @@ PIECE_CATALOG: dict[int, PiecePrefab] = {
     ),
 
     1 : PiecePrefab(
-        ((0, 0)),
+        ((0, 0),),
         1, PlayerColor.WHITE, "Tavern_white", 2
     ),
 
     2 : PiecePrefab(
-        ((0, 0)),
+        ((0, 0),),
         1, PlayerColor.RED, "Tavern_red", 2
     ),
 
     3 : PiecePrefab(
-        ((0, 0), (0, -1)),
+        ((0, 0), (0, 1)),
         2, PlayerColor.WHITE, "Stable_white", 2
     ),
 
     4 : PiecePrefab(
-        ((0, 0), (0, -1)),
+        ((0, 0), (0, 1)),
         2, PlayerColor.RED, "Stable_red", 2
     ),
 
     5 : PiecePrefab(
-        ((0, 0), (1, 0), (0, -1)),
+        ((0, 0), (1, 0), (0, 1)),
         3, PlayerColor.WHITE, "Inn_white", 2
     ),
 
     6 : PiecePrefab(
-        ((0, 0), (1, 0), (0, -1)),
+        ((0, 0), (1, 0), (0, 1)),
         3, PlayerColor.RED, "Inn_red", 2
     ),
 

@@ -4,6 +4,11 @@ from backend.models.enums import PlayerColor
 from backend.models.piece import PIECE_CATALOG, NEIGHBOR_OFFSETS, EMPTY_TILE
 from backend.models.placement import Placement
 
+OPPOSITE = {
+    PlayerColor.WHITE: PlayerColor.RED,
+    PlayerColor.RED:   PlayerColor.WHITE,
+}
+
 class Board:
     def __init__(self):
         self.grid: list[list[Cell]] = [[Cell() for _ in range(10)] for _ in range(10)]
@@ -14,55 +19,85 @@ class Board:
             PlayerColor.RED: set(),
         }
         self.bfs_iter: int = 0
-        self.placements: dict[PlayerColor, dict[tuple[int, int], Placement]] = {
-            PlayerColor.WHITE: {}, 
-            PlayerColor.RED: {}
-        }
+        self.placements: dict[str, Placement] = {}
+        self._next_token: int = 0
 
-    def place_piece(self, piece_id: int, anchor: tuple[int, int], rotation: int, color: PlayerColor) -> bool:
+    def place_piece(
+            self,
+            piece_id: int,
+            anchor: tuple[int, int],
+            rotation: int,
+            color: PlayerColor) -> str | None:
+        
+        """
+        Places a piece on the board.
+        Returns the token_id of the new piece, or None if the move is illegal.
+        """
+
         if not Engine.validate_move(self, piece_id, anchor, rotation, color):
+            return None
+
+        ax, ay = anchor
+        offsets = Engine.get_rotated_piece(piece_id, rotation)
+
+        for dx, dy in offsets:
+            self.grid[ay + dy][ax + dx] = Cell(color, piece_id)
+
+        token_id = f"{piece_id}_{self._next_token}"
+        self._next_token += 1
+        self.placements[token_id] = Placement(token_id, piece_id, anchor, rotation, color)
+
+        if color == PlayerColor.NEUTRAL:
+            return token_id
+
+        for dx, dy in offsets:
+            cx, cy = ax + dx, ay + dy
+            for ndx, ndy in NEIGHBOR_OFFSETS:
+                nx, ny = cx + ndx, cy + ndy
+                if not (0 <= nx < 10 and 0 <= ny < 10):
+                    continue
+                if self.bfs_iter <= self.bfs_grid[ny][nx]: # if bfs was already run in this cell
+                    continue
+                if self.grid[ny][nx].piece_id != EMPTY_TILE:
+                    continue
+
+                owner, tiles, interior = Engine.calculate_territory(self, (nx, ny))
+
+                if owner != color:
+                    continue
+
+                self.territories[PlayerColor.NEUTRAL] -= tiles
+                self.territories[OPPOSITE[color]] -= tiles
+                self.territories[color] |= tiles
+
+                if len(interior) == 1 and interior[0].color == OPPOSITE[color]:
+                    removed = interior[0]
+                    freed_cells = {
+                        (removed.anchor[0] + ddx, removed.anchor[1] + ddy)
+                        for ddx, ddy in Engine.get_rotated_piece(
+                            removed.piece_id, removed.rotation)
+                    }
+                    self.remove_piece(removed.token_id)
+                    self.territories[color] |= freed_cells
+
+        return token_id
+
+    def remove_piece(self, token_id: str) -> bool:
+        """
+        Removes a piece from the board by token_id.
+        Returns True if removed, False if token_id is unknown.
+        """
+
+        placement = self.placements.get(token_id)
+        if placement is None:
             return False
 
-        x, y = anchor
+        ax, ay = placement.anchor
+        for dx, dy in Engine.get_rotated_piece(placement.piece_id, placement.rotation):
+            self.grid[ay + dy][ax + dx] = Cell()  # EMPTY_TILE, NEUTRAL
 
-        opposite = {
-            PlayerColor.WHITE: PlayerColor.RED,
-            PlayerColor.RED: PlayerColor.WHITE,
-        }
-
-        for x_offset, y_offset in Engine.get_rotated_piece(piece_id, rotation):
-            self.grid[y + y_offset][x + x_offset] = Cell(color, piece_id)
-
-            for dx, dy in NEIGHBOR_OFFSETS:
-                nx = x + x_offset + dx
-                ny = y + y_offset + dy
-
-                if not ((0 <= nx < 10) and (0 <= ny < 10)):
-                    continue
-
-                if self.grid[ny][nx].piece_id != EMPTY_TILE or self.bfs_iter <= self.bfs_grid[ny][nx]:
-                    continue
-
-                owner, tiles = Engine.calculate_territory(self, (nx, ny))
-                if owner != PlayerColor.NEUTRAL:
-                    self.territories[PlayerColor.NEUTRAL] -= tiles
-                    self.territories[opposite[owner]] -= tiles
-                    self.territories[owner] |= tiles
-
-                    for placed in self.placements[opposite[owner]].values():
-                        if placed.anchor in self.territories[owner]:
-                            self.remove_piece(placed.anchor)
-                            break
-
-    def remove_piece(self, anchor: tuple[int, int]) -> bool:
-        x, y = anchor
-        piece_id, col = self.grid[y][x].piece_id, self.grid[y][x].player_color
-        rot = self.placements[col].get(anchor).rotation
-
-        for x_offset, y_offset in Engine.get_rotated_piece(piece_id, rot):
-            self.grid[y + y_offset][x + x_offset] = Cell(PlayerColor.NEUTRAL, EMPTY_TILE)
-        
-        del self.placements[col][anchor]
+        del self.placements[token_id]
+        return True
 
     def to_serializable(self) -> dict:
         pass
