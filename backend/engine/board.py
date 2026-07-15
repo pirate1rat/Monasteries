@@ -37,6 +37,9 @@ class Board:
                 nx = x + x_offset + dx
                 ny = y + y_offset + dy
 
+                if not ((0 <= nx < 10) and (0 <= ny < 10)):
+                    continue
+
                 if self.grid[ny][nx].piece_id != EMPTY_TILE or self.bfs_iter <= self.bfs_grid[ny][nx]:
                     continue
 

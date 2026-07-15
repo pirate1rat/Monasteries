@@ -1,13 +1,17 @@
 from backend.models.enums import GameResult, PlayerColor
 from backend.models.piece import PIECE_CATALOG, EMPTY_TILE, NEIGHBOR_OFFSETS
-from backend.engine.board import Board
 from queue import Queue
 from itertools import product
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from backend.engine.board import Board
 
 class Engine:
     @staticmethod
     def get_rotated_piece(piece_id: int, rotation: int) -> list[tuple[int, int]]:
-        new_shape = PIECE_CATALOG[piece_id].shape.copy()
+        new_shape = list(PIECE_CATALOG[piece_id].shape)
         
         for _ in range(rotation):
             new_shape = [(-y, x) for x, y in new_shape]
@@ -16,7 +20,7 @@ class Engine:
 
     @staticmethod
     def validate_move(
-            board: Board,
+            board: "Board",
             piece_id: int,
             anchor: tuple[int, int],
             rotation: int,
@@ -39,13 +43,13 @@ class Engine:
             PlayerColor.RED: PlayerColor.WHITE,
         }
 
-        if anchor in board.territories[opposite[color]]:
+        if opposite.get(color, False) and anchor in board.territories[opposite[color]]:
             return False
 
         return True
 
     @staticmethod
-    def calculate_territory(board: Board, position: tuple[int, int]) -> tuple[PlayerColor, list[tuple[int, int]]]:
+    def calculate_territory(board: "Board", position: tuple[int, int]) -> tuple[PlayerColor, list[tuple[int, int]]]:
         discovered_colors = set()
         discovered_pieces = set()
         tiles = set()
@@ -89,7 +93,7 @@ class Engine:
                 return (PlayerColor.RED, tiles)
 
     @staticmethod
-    def has_possible_moves(board: Board, color: PlayerColor, remaining_pices: list[int]) -> bool:
+    def has_possible_moves(board: "Board", color: PlayerColor, remaining_pices: list[int]) -> bool:
         return any(
             Engine.validate_move(board, piece_id, (x, y), rot, color)
             for piece_id in remaining_pices
@@ -99,7 +103,7 @@ class Engine:
         )
 
     @staticmethod
-    def check_game_over(board: Board, white_remaining_pices: list[int], red_remaining_pices: list[int]) -> GameResult | None:
+    def check_game_over(board: "Board", white_remaining_pices: list[int], red_remaining_pices: list[int]) -> GameResult | None:
         if Engine.has_possible_moves(board, PlayerColor.WHITE, white_remaining_pices) \
         or Engine.has_possible_moves(board, PlayerColor.RED, red_remaining_pices): return None
         else:
