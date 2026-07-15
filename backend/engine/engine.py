@@ -1,19 +1,20 @@
 from backend.models.enums import GameResult, PlayerColor
-from backend.models.piece import PIECE_CATALOG, EMPTY_TILE
+from backend.models.piece import PIECE_CATALOG, EMPTY_TILE, NEIGHBOR_OFFSETS
 from backend.engine.board import Board
 from queue import Queue
 from itertools import product
 
 class Engine:
+    @staticmethod
     def get_rotated_piece(piece_id: int, rotation: int) -> list[tuple[int, int]]:
         new_shape = PIECE_CATALOG[piece_id].shape.copy()
         
-        for i in range(rotation):
-            for ((x, y), i) in enumerate(new_shape):
-                new_shape[i] = (-y, x)
+        for _ in range(rotation):
+            new_shape = [(-y, x) for x, y in new_shape]
 
         return new_shape
 
+    @staticmethod
     def validate_move(
             board: Board,
             piece_id: int,
@@ -22,8 +23,8 @@ class Engine:
             color: PlayerColor) -> bool:
         piece = Engine.get_rotated_piece(piece_id, rotation)
 
-        for (x, y) in piece:
-            x_offset, y_offset = anchor
+        for x_offset, y_offset in piece:
+            x, y = anchor
 
             # is on board
             if not ((0 <= x + x_offset < 10) and (0 <= y + y_offset < 10)):
@@ -33,14 +34,17 @@ class Engine:
                 return False
         
         # is on territory
-        match color:
-            case PlayerColor.WHITE: opposite_col = PlayerColor.RED
-            case PlayerColor.RED: opposite_col = PlayerColor.WHITE
-        if anchor in board.territories[opposite_col]:
+        opposite = {
+            PlayerColor.WHITE: PlayerColor.RED,
+            PlayerColor.RED: PlayerColor.WHITE,
+        }
+
+        if anchor in board.territories[opposite[color]]:
             return False
 
         return True
 
+    @staticmethod
     def calculate_territory(board: Board, position: tuple[int, int]) -> tuple[PlayerColor, list[tuple[int, int]]]:
         discovered_colors = set()
         discovered_pieces = set()
@@ -66,8 +70,8 @@ class Engine:
                     discovered_pieces.add(board.grid[y][x].piece_id)
                 else:
                     tiles.add((x, y))
-                    q.put((x+1, y)); q.put((x-1, y))
-                    q.put((x, y+1)); q.put((x, y-1))
+                    for dx, dy in NEIGHBOR_OFFSETS:
+                        q.put((x + dx, y + dy))
         
         _bfs(position)
         if len(discovered_colors) == 0 or PlayerColor.NEUTRAL in discovered_colors:
@@ -84,6 +88,7 @@ class Engine:
             else:
                 return (PlayerColor.RED, tiles)
 
+    @staticmethod
     def has_possible_moves(board: Board, color: PlayerColor, remaining_pices: list[int]) -> bool:
         return any(
             Engine.validate_move(board, piece_id, (x, y), rot, color)
@@ -93,15 +98,17 @@ class Engine:
             for rot in range(4)
         )
 
+    @staticmethod
     def check_game_over(board: Board, white_remaining_pices: list[int], red_remaining_pices: list[int]) -> GameResult | None:
         if Engine.has_possible_moves(board, PlayerColor.WHITE, white_remaining_pices) \
         or Engine.has_possible_moves(board, PlayerColor.RED, red_remaining_pices): return None
         else:
             white_score = sum(PIECE_CATALOG[piece_id].size for piece_id in white_remaining_pices)
-            red_score = sum(PIECE_CATALOG[piece_id].size for piece_id in white_remaining_pices)
+            red_score = sum(PIECE_CATALOG[piece_id].size for piece_id in red_remaining_pices)
             if white_score == red_score: return GameResult.DRAW
             elif white_score > red_score: return GameResult.WHITE_WINS
             else: return GameResult.RED_WINS
 
+    @staticmethod
     def reconstruct_from_moves(moves: str) -> Board:
         pass
