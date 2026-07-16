@@ -132,30 +132,27 @@ class Engine:
         return (owner, tiles, interior_pieces)
 
     @staticmethod
-    def has_possible_moves(board: Board, color: PlayerColor, remaining_pieces: list[int]) -> bool:
+    def has_possible_moves(board: Board, color: PlayerColor, remaining_pieces: dict[int, int]) -> bool:
         return any(
             Engine.validate_move(board, piece_id, (x, y), rot, color)
-            for piece_id in remaining_pieces
+            for piece_id in remaining_pieces.keys()
             for x, y in product(range(10), repeat=2)
             if board.grid[y][x].piece_id == EMPTY_TILE
             for rot in range(4)
         )
 
     @staticmethod
-    def check_game_over(board: Board, white_remaining: list[int], red_remaining: list[int]) -> GameResult | None:
+    def check_game_over(board: Board, white_remaining: dict[int, int], red_remaining: dict[int, int]) -> GameResult | None:
         if Engine.has_possible_moves(board, PlayerColor.WHITE, white_remaining) \
         or Engine.has_possible_moves(board, PlayerColor.RED,   red_remaining):
             return None
 
-        white_remaining_tiles = sum(PIECE_CATALOG[pid].size for pid in white_remaining)
-        red_remaining_tiles = sum(PIECE_CATALOG[pid].size for pid in red_remaining)
+        white_remaining_tiles = sum(PIECE_CATALOG[pid].size * qty for pid, qty in white_remaining.items())
+        red_remaining_tiles = sum(PIECE_CATALOG[pid].size * qty for pid, qty in red_remaining.items())
 
-        if white_remaining_tiles == red_remaining_tiles:
-            return GameResult.DRAW
-        elif white_remaining_tiles < red_remaining_tiles:
-            return GameResult.WHITE_WINS
-        else:
-            return GameResult.RED_WINS
+        if white_remaining_tiles == red_remaining_tiles: return GameResult.DRAW
+        elif white_remaining_tiles < red_remaining_tiles: return GameResult.WHITE_WINS
+        else: return GameResult.RED_WINS
 
     @staticmethod
     def reconstruct_from_moves(moves: str) -> Board:
