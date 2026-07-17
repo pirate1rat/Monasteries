@@ -12,7 +12,7 @@ from backend.models.move_result import MoveResult
 
 OPPOSITE: dict[PlayerColor, PlayerColor] = {
     PlayerColor.WHITE: PlayerColor.RED,
-    PlayerColor.RED:   PlayerColor.WHITE,
+    PlayerColor.RED: PlayerColor.WHITE,
 }
 
 class Game:
@@ -93,7 +93,9 @@ class Game:
         self.result = result
 
     def _tick_clock(self, color: PlayerColor):
-        """Subtracts the time elapsed since the last move and adds the increment"""
+        """
+        Subtracts the time elapsed since the last move and adds the increment
+        """
 
         now = datetime.datetime.now()
         elapsed = (now - self.last_move_at).total_seconds()
@@ -102,6 +104,31 @@ class Game:
     
     def _validate_turn(self, player_id: int) -> bool:
         return (self.status == GameStatus.IN_PROGRESS and self._color(player_id) == self.current_turn)
+
+    def _advance_turn(self) -> GameResult | None:
+        """
+        Switches the turn. If the next player has no legal moves, their turn is 
+        automatically passed, and the game-over condition is checked. 
+        
+        Returns: GameResult: if the game has ended. 
+        None: if the game is still in progress.
+        """
+        self.current_turn = OPPOSITE[self.current_turn]
+
+        if not Engine.has_possible_moves(
+            self.board,
+            self.current_turn,
+            self.pieces_on_hand[self.current_turn],
+        ):
+            # autopass
+            self.current_turn = OPPOSITE[self.current_turn]
+            return Engine.check_game_over(
+                self.board,
+                self.pieces_on_hand[PlayerColor.WHITE],
+                self.pieces_on_hand[PlayerColor.RED],
+            )
+
+        return None
 
     ##############################
 
@@ -114,28 +141,17 @@ class Game:
         # pass turn
         if placement.piece_id == PASS_TURN_ID:
             self._tick_clock(color)
-            self.current_turn = OPPOSITE[color]
             self.moves.append(move)
             self.history.append(self.board.to_serializable())
 
-            game_result = Engine.check_game_over(
-                self.board, 
-                self.pieces_on_hand[PlayerColor.WHITE],
-                self.pieces_on_hand[PlayerColor.RED],
-            )
+            game_result = self._advance_turn()
             if game_result is not None:
                 self._finish(game_result)
             
-            return MoveResult(PASS_TURN_ID, None, set())
+            return MoveResult(token_id=PASS_TURN_ID, captured=None, territories_gained=set())
 
-        prefab = PIECE_CATALOG.get(placement.piece_id)
-        if prefab is None:
-            raise Exception("Unexisting prefab")
-        if prefab.color not in (color, PlayerColor.NEUTRAL):
-            raise Exception("Unexisting player color")
-        result = self.board.place_piece(placement.piece_id, placement.anchor, placement.rotation, color)
-        if result is None:
-            return None
+        result: MoveResult = self.board.place_piece(placement.piece_id, placement.anchor, placement.rotation, color)
+        if result is None: return None
 
         hand = self.pieces_on_hand.get(color, {})
         if placement.piece_id in hand:
@@ -144,19 +160,19 @@ class Game:
                 del hand[placement.piece_id]
         
         self._tick_clock(color)
-        self.current_turn = OPPOSITE[color]
         self.moves.append(move)
         self.history.append(self.board.to_serializable())
 
-        game_result = Engine.check_game_over(
-            self.board, 
-            self.pieces_on_hand[PlayerColor.WHITE],
-            self.pieces_on_hand[PlayerColor.RED],
-        )
+        game_result = self._advance_turn()
         if game_result is not None:
             self._finish(game_result)
-            
-        return MoveResult(PASS_TURN_ID, None, set())
+        else:
+            result.opponent_auto_passed = not Engine.has_possible_moves(
+                self.board,
+                self.current_turn,
+                self.pieces_on_hand[self.current_turn],
+            )
+        return result
             
     def resign(self, player_id) -> GameResult:
         color = self._color(player_id)
