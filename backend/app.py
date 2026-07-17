@@ -1,5 +1,7 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 CORS(app)
@@ -8,6 +10,8 @@ CORS(app)
 #         "origins": "http://localhost:3000"
 #     }
 # }
+
+db = SQLAlchemy()
 
 @app.route('/', methods=['GET'])
 def get_data():
