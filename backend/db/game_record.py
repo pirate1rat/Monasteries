@@ -7,6 +7,7 @@ class GameRecord(db.Model):
     white_user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False)
     red_user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False)
 
+    status = db.Column(db.String, nullable=False, default="in_progress")
     result = db.Column(db.String, nullable=True)
     time_control = db.Column(db.JSON, nullable=True)
     moves = db.Column(db.Text, nullable=True, default="")

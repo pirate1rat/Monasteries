@@ -10,6 +10,8 @@ from backend.models.time_control import TimeControl
 from backend.models.move import Move
 from backend.models.move_result import MoveResult
 
+from backend.db.operations import save_game
+
 OPPOSITE: dict[PlayerColor, PlayerColor] = {
     PlayerColor.WHITE: PlayerColor.RED,
     PlayerColor.RED: PlayerColor.WHITE,
@@ -52,6 +54,7 @@ class Game:
         self.red_time_left = float(time_control.base)
         now = datetime.datetime.now()
         self.started_at = now
+        self.finished_at = None
         self.last_move_at = now
 
         self.moves: list[Move] = []
@@ -91,6 +94,7 @@ class Game:
     def _finish(self, result: GameResult):
         self.status = GameStatus.FINISHED
         self.result = result
+        self.finished_at = datetime.datetime.now()
 
     def _tick_clock(self, color: PlayerColor):
         """
@@ -148,10 +152,13 @@ class Game:
             if game_result is not None:
                 self._finish(game_result)
             
+            save_game(self)
             return MoveResult(token_id=PASS_TURN_ID, captured=None, territories_gained=set())
 
         result: MoveResult = self.board.place_piece(placement.piece_id, placement.anchor, placement.rotation, color)
-        if result is None: return None
+        if result is None:
+            save_game(self)
+            return None
 
         hand = self.pieces_on_hand.get(color, {})
         if placement.piece_id in hand:
@@ -172,6 +179,8 @@ class Game:
                 self.current_turn,
                 self.pieces_on_hand[self.current_turn],
             )
+        
+        save_game(self)
         return result
             
     def resign(self, player_id) -> GameResult:

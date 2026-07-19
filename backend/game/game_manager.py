@@ -59,6 +59,16 @@ class GameManager:
             return False
         del self.active_lobbies[lobby_id]
         return True
+    
+    def create_game(self, white_id: int, red_id: int, time_control: TimeControl) -> "Game":
+        self._next_game_id += 1
+
+        return Game(
+            self._next_game_id,
+            white_id,
+            red_id,
+            time_control
+        )
 
     def join_lobby(self, lobby_id, player_id) -> "Game" | None:
         """
@@ -81,14 +91,7 @@ class GameManager:
         else:
             white_id, red_id = player_id, lobby.host_id
 
-        game = Game(
-            self._next_game_id,
-            white_id,
-            red_id,
-            lobby.time_control
-        )
-        self._next_game_id += 1
-
+        game = self.create_game(white_id, red_id, lobby.time_control)
         self.active_games[game.game_id] = game
         del self.active_lobbies[lobby.lobby_id]
 
