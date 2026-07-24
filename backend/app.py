@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -30,9 +30,9 @@ def create_app():
         from backend.db.user import User
         return db.session.get(User, int(user_id))
     
-    # @login_manager.unauthorized_handler
-    # def unauthorized_callback():
-    #     return redirect(url_for('learning.main'))
+    @login_manager.unauthorized_handler
+    def unauthorized_callback():
+        return jsonify({"error": "unauthorized"}), 401
 
     Migrate(app, db)
 
