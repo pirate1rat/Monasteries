@@ -44,12 +44,18 @@ def update_ranking(user_id: int, new_ranking: int) -> bool:
 
 # GAMERECORD
 def save_game(game: "Game"):
+    def valid_user_id(pid: int) -> int | None:
+        return pid if pid > 0 else None
+
+    white_id = valid_user_id(game.players.inverse[PlayerColor.WHITE])
+    red_id = valid_user_id(game.players.inverse[PlayerColor.RED])
+
     game_record: GameRecord = db.session.get(GameRecord, game.game_id)
 
     if game_record is None:
         new_game_record = GameRecord(
-            white_user_id=game.players.inverse[PlayerColor.WHITE],
-            red_user_id=game.players.inverse[PlayerColor.RED],
+            white_user_id=white_id,
+            red_user_id=red_id,
             status=game.status,
             result=game.result,
             time_control=game.time_control,

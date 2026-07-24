@@ -4,8 +4,8 @@ from backend.app import db
 class GameRecord(db.Model):
     __tablename__ = "games"
     game_id = db.Column(db.Integer, primary_key=True)
-    white_user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False)
-    red_user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False)
+    white_user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=True)
+    red_user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=True)
 
     status = db.Column(db.String, nullable=False, default="in_progress")
     result = db.Column(db.String, nullable=True)
