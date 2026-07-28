@@ -20,14 +20,13 @@ export default function LoginPage() {
         }
     }
 
-    async function handleAnonymous() {
-        await loginAnonymous()
+    function handleAnonymous() {
         navigate('/')
     }
 
     return (
         <div className={styles.container}>
-            <h1>Cathedral</h1>
+            <h1>Sign in</h1>
             <div className={styles.form}>
                 <input type='email' placeholder='Email' value={email} onChange={e => setEmail(e.target.value)}/>
                 <input type='password' placeholder='Password' value={password} onChange={e => setPassword(e.target.value)}/>

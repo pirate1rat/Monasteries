@@ -1,6 +1,6 @@
 import os
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, session, request, jsonify
 from flask_login import login_user, logout_user
 
 from backend.app import bcrypt
@@ -19,7 +19,7 @@ def login():
             return jsonify({"error": "invalid credentials"}), 401
         
         login_user(user)
-        return jsonify({"status": "ok"})
+        return jsonify({"status": "ok", "username": user.username})
 
 @auth_bp.route("/logout", methods=['POST'])
 def logout():

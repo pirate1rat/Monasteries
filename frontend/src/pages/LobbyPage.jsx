@@ -30,7 +30,7 @@ export default function LobbyPage() {
                             <Link to="/login">
                                 <button className={styles.btnOutline}>Sign in</button>
                             </Link>
-                            <Link to="/login">
+                            <Link to="/register">
                                 <button className={styles.btnPrimary}>Sign up</button>
                             </Link>
                         </>
