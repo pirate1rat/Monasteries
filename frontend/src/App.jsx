@@ -15,7 +15,8 @@ export default function App() {
                 <Route path="/login" element={<LoginPage/>} />
                 <Route path="/register" element={<RegisterPage/>} />
                 {/* <Route path="/rules" element={<TutorialPage/>} /> */}
-                <Route path="/" element={player ? <LobbyPage/> : <Navigate to="/login" />} />
+                {/* <Route path="/" element={player ? <LobbyPage/> : <Navigate to="/login" />} /> */}
+                <Route path="/" element={<LobbyPage/>} />
                 {/* <Route path="/game/gameId" element={player ? <GamePage/> : <Navigate to="/login" />} /> */}
             </Routes>
         </BrowserRouter>

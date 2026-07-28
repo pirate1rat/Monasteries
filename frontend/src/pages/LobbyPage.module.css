@@ -1,0 +1,41 @@
+.page   { min-height: 100vh; background: var(--bg); }
+
+.nav    { display: flex; align-items: center; justify-content: space-between;
+          padding: 12px 24px; border-bottom: 1px solid #2a2a3d; background: #16213e; }
+.logo   { font-size: 18px; font-weight: 500; }
+.menu   { display: flex; gap: 4px; }
+.menuBtn { background: none; border: none; padding: 6px 12px;
+           border-radius: 6px; color: #aaa; cursor: pointer; font-size: 14px; }
+.menuBtn:hover { background: #1a1a2e; color: #eaeaea; }
+
+.navRight  { display: flex; align-items: center; gap: 8px; }
+.guestBadge { font-size: 12px; padding: 3px 10px; border-radius: 20px;
+              background: #0f3460; color: #aaa; }
+.username   { font-size: 14px; color: #eaeaea; }
+.btnOutline { padding: 6px 14px; border-radius: 6px; border: 1px solid #444;
+              background: none; color: #eaeaea; cursor: pointer; font-size: 14px; }
+.btnOutline:hover { background: #16213e; }
+.btnPrimary { padding: 6px 14px; border-radius: 6px; border: none;
+              background: #e94560; color: white; cursor: pointer; font-size: 14px; }
+
+.main   { padding: 24px; }
+.topBar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.title  { font-size: 16px; font-weight: 500; }
+.btnNew { display: flex; align-items: center; gap: 6px; padding: 8px 16px;
+          border-radius: 6px; border: none; background: #e94560; color: white;
+          font-size: 14px; cursor: pointer; }
+
+.table  { width: 100%; border-collapse: collapse; font-size: 14px; }
+.table th { text-align: left; padding: 8px 12px; color: #888;
+            font-weight: 400; border-bottom: 1px solid #2a2a3d; }
+.table td { padding: 10px 12px; border-bottom: 1px solid #2a2a3d; }
+.row:hover td { background: #16213e; cursor: pointer; }
+.myRow td   { background: #0f2044; }
+
+.pillWait { padding: 2px 8px; border-radius: 20px; font-size: 12px;
+            background: #3d2e00; color: #f0a500; }
+.pillOpen { padding: 2px 8px; border-radius: 20px; font-size: 12px;
+            background: #0d3320; color: #2ecc71; }
+.joinBtn  { padding: 4px 12px; border-radius: 6px; border: 1px solid #e94560;
+            background: none; color: #e94560; font-size: 13px; cursor: pointer; }
+.joinBtn:hover { background: #1a0a0f; }
