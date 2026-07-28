@@ -1,6 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import styles from './LobbyPage.module.css'
+import logo from '../assets/cathedral-logo.png'
 
 const DUMMY_LOBBIES = [
     { id: 'abc', host: 'gracz123', color: 'Losowy',   time: '5 min' },
@@ -16,7 +17,7 @@ export default function LobbyPage() {
     return (
         <div className={styles.page}>
             <nav className={styles.nav}>
-                <span className={styles.logo}>Cathedral</span>
+                <img src={logo} alt="Logo" className={styles.logo} />
                 <div className={styles.menu}>
                     <button className={styles.menuBtn}>Tutorials</button>
                     <button className={styles.menuBtn}>Tools</button>
@@ -44,41 +45,43 @@ export default function LobbyPage() {
             </nav>
 
             <main className={styles.main}>
-                <div className={styles.topBar}>
-                    <h2 className={styles.title}>Lobbies</h2>
-                    <button className={styles.btnNew} onClick={() => navigate('/game/new')}>Create lobby</button>
-                </div>
+                <div className={styles.tableWrapper}>
+                    <div className={styles.topBar}>
+                        <h2 className={styles.title}>Lobbies</h2>
+                        <button className={styles.btnNew} onClick={() => navigate('/game/new')}>Create lobby</button>
+                    </div>
 
-                <table className={styles.table}>
-                    <thead>
-                        <tr>
-                            <th>Player</th>
-                            <th>Color</th>
-                            <th>Tempo</th>
-                            <th>Status</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr className={styles.myRow}>
-                            <td>You ({isGuest ? "Guest" : player?.username})</td>
-                            <td>Red</td>
-                            <td>10min + 5s</td>
-                            <td><span className={styles.pillWait}>Waiting for opponent</span></td>
-                            <td></td>
-                        </tr>
-
-                        {DUMMY_LOBBIES.map(l => (
-                            <tr key={l.id} className={styles.row}>
-                                <td>{l.host}</td>
-                                <td>{l.color}</td>
-                                <td>{l.time}</td>
-                                <td><span className={styles.pillOpen}>Open</span></td>
-                                <td><button className={styles.joinBtn}>Join</button></td>
+                    <table className={styles.table}>
+                        <thead>
+                            <tr>
+                                <th>Player</th>
+                                <th>Color</th>
+                                <th>Tempo</th>
+                                <th>Status</th>
+                                <th></th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <tr className={styles.myRow}>
+                                <td>You ({isGuest ? "Guest" : player?.username})</td>
+                                <td>Red</td>
+                                <td>10min + 5s</td>
+                                <td><span className={styles.pillWait}>Waiting for opponent</span></td>
+                                <td></td>
+                            </tr>
+
+                            {DUMMY_LOBBIES.map(l => (
+                                <tr key={l.id} className={styles.row}>
+                                    <td>{l.host}</td>
+                                    <td>{l.color}</td>
+                                    <td>{l.time}</td>
+                                    <td><span className={styles.pillOpen}>Open</span></td>
+                                    <td><button className={styles.joinBtn}>Join</button></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </main>
         </div>
     )
