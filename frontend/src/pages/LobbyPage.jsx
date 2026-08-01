@@ -2,6 +2,8 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import styles from './LobbyPage.module.css'
 import logo from '../assets/cathedral-logo.png'
+import { useState } from 'react'
+import CreateGameModal from '../components/CreateGameModal'
 
 const DUMMY_LOBBIES = [
     { id: 'abc', host: 'gracz123', color: 'Losowy',   time: '5 min' },
@@ -10,6 +12,7 @@ const DUMMY_LOBBIES = [
 ]
 
 export default function LobbyPage() {
+    const [showModal, setShowModal] = useState(false)
     const { player, logout } = useAuth()
     const navigate = useNavigate()
     const isGuest = player?.anonymous
@@ -48,7 +51,7 @@ export default function LobbyPage() {
                 <div className={styles.tableWrapper}>
                     <div className={styles.topBar}>
                         <h2 className={styles.title}>Lobbies</h2>
-                        <button className={styles.btnNew} onClick={() => navigate('/game/new')}>Create lobby</button>
+                        <button className={styles.btnNew} onClick={() => setShowModal(true)}>Create lobby</button>
                     </div>
 
                     <table className={styles.table}>
@@ -83,6 +86,10 @@ export default function LobbyPage() {
                     </table>
                 </div>
             </main>
+
+            {showModal && (
+                <CreateGameModal onClose={() => setShowModal(false)} />
+            )}
         </div>
     )
 }
