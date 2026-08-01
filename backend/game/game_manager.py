@@ -23,12 +23,12 @@ class GameManager:
     _instance = None
     _initialized = False
 
-    def __new__(cls: GameManager, *args, **kwargs):
+    def __new__(cls, *args, **kwargs):
         if cls._instance is None: 
             cls._instance = super().__new__(cls)
         return cls._instance
     
-    def __init__(self, socketio):
+    def __init__(self, socketio=None):
         if not self._initialized:
             self._socketio = socketio
 
@@ -60,7 +60,7 @@ class GameManager:
         del self.active_lobbies[lobby_id]
         return True
     
-    def create_game(self, white_id: int, red_id: int, time_control: TimeControl) -> "Game":
+    def create_game(self, white_id: int, red_id: int, time_control: TimeControl) -> Game:
         self._next_game_id += 1
 
         return Game(
@@ -70,7 +70,7 @@ class GameManager:
             time_control
         )
 
-    def join_lobby(self, lobby_id, player_id) -> "Game" | None:
+    def join_lobby(self, lobby_id, player_id) -> Game | None:
         """
         Pairs the player with the host, creates a Game, and removes the lobby. 
         Returns None if the lobby does not exist or if the player tries to join 
@@ -97,7 +97,7 @@ class GameManager:
 
         return game
 
-    def get_game(self, game_id) -> "Game" | None:
+    def get_game(self, game_id) -> Game | None:
         return self.active_games[game_id]
 
     def get_game_for_player(self, player_id) -> Game | None:

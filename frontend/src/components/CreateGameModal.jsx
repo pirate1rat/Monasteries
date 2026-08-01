@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import styles from './CreateGameModal.module.css'
+import { useAuth } from '../hooks/useAuth'
+import api from '../services/api'
 
 const TIME_PRESETS = [
     { label: '3 min', base: 180, increment: 0 },
@@ -9,11 +11,18 @@ const TIME_PRESETS = [
     { label: 'Custom', base: null, increment: null },
 ]
 
+async function createLobby(hostId, color, timeControl) {
+    const res = await api.post('/lobbies/create', {hostId, color, timeControl})
+    console.log('Created lobby lobby:', { color, timeControl })
+    return res
+}
+
 export default function CreateGameModal({ onClose }) {
     const [color, setColor] = useState('random')
     const [preset, setPreset] = useState(0)
     const [customMin, setCustomMin] = useState(10)
     const [customInc, setCustomInc] = useState(0)
+    const { player } = useAuth()
 
     const isCustom = TIME_PRESETS[preset].base === null
 
@@ -22,8 +31,7 @@ export default function CreateGameModal({ onClose }) {
         ? { base: customMins * 60, increment: customInc }
         : { base: TIME_PRESETS[preset].base, increment: TIME_PRESETS[preset].increment}
 
-        console.log('Tworzę lobby:', { color, timeControl })
-        // TODO: POST /lobbies
+        createLobby(player.playerId , color, timeControl)
         onClose()
     }
 

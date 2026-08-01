@@ -2,7 +2,7 @@ import datetime
 
 from backend.db.game_record import GameRecord
 from backend.db.user import User
-from backend.app import db
+from backend.instances import db
 from backend.models.enums import PlayerColor, GameStatus
 
 from typing import TYPE_CHECKING

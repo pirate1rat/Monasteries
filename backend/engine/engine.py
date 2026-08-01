@@ -25,7 +25,7 @@ class Engine:
 
     @staticmethod
     def validate_move(
-            board: Board,
+            board: "Board",
             piece_id: int,
             anchor: tuple[int, int],
             rotation: int,
@@ -48,7 +48,7 @@ class Engine:
         return True
 
     @staticmethod
-    def calculate_territory(board: Board, position: tuple[int, int]) -> tuple[PlayerColor, set[tuple[int, int]], list[Placement]]:
+    def calculate_territory(board: "Board", position: tuple[int, int]) -> tuple[PlayerColor, set[tuple[int, int]], list[Placement]]:
         """
         BFS starting from `position`.
         Returns (owner, empty_tiles, internal_pieces).
@@ -132,7 +132,7 @@ class Engine:
         return (owner, tiles, interior_pieces)
 
     @staticmethod
-    def has_possible_moves(board: Board, color: PlayerColor, remaining_pieces: dict[int, int]) -> bool:
+    def has_possible_moves(board: "Board", color: PlayerColor, remaining_pieces: dict[int, int]) -> bool:
         return any(
             Engine.validate_move(board, piece_id, (x, y), rot, color)
             for piece_id in remaining_pieces.keys()
@@ -142,7 +142,7 @@ class Engine:
         )
 
     @staticmethod
-    def check_game_over(board: Board, white_remaining: dict[int, int], red_remaining: dict[int, int]) -> GameResult | None:
+    def check_game_over(board: "Board", white_remaining: dict[int, int], red_remaining: dict[int, int]) -> GameResult | None:
         if Engine.has_possible_moves(board, PlayerColor.WHITE, white_remaining) \
         or Engine.has_possible_moves(board, PlayerColor.RED,   red_remaining):
             return None
@@ -155,5 +155,5 @@ class Engine:
         else: return GameResult.RED_WINS
 
     @staticmethod
-    def reconstruct_from_moves(moves: str) -> Board:
+    def reconstruct_from_moves(moves: str) -> "Board":
         pass

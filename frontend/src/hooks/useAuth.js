@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import api from '../services/api'
 
 class Player {
-    constructor({ player_id = null, username = null, email = null, anonymous = false } = {}) {
-        this.player_id = player_id
+    constructor({ playerId = null, username = null, email = null, anonymous = false } = {}) {
+        this.playerId = playerId
         this.username = username
         this.email = email
         this.anonymous = anonymous
@@ -21,7 +21,7 @@ function setPlayer(p) {
 async function loginAnonymous() {
     const res = await api.post('auth/anonymous')
     if(res.data.status === 'ok') {
-        setPlayer(new Player({anonymous: true, player_id: res.data.player_id}))
+        setPlayer(new Player({anonymous: true, playerId: res.data.playerId}))
     }
     return res
 }

@@ -40,6 +40,6 @@ def register():
 @auth_bp.route("/anonymous", methods=['POST'])
 def anonymous():
     anon_id = -abs(hash(os.urandom(8)))
-    session["player_id"] = anon_id
+    session["playerId"] = anon_id
     session["is_anonymous"] = True
-    return jsonify({"status": "ok", "player_id": anon_id})
+    return jsonify({"status": "ok", "playerId": anon_id})

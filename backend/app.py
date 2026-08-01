@@ -1,15 +1,7 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt
-from flask_login import LoginManager
-from flask_socketio import SocketIO
-
-db = SQLAlchemy()
-bcrypt = Bcrypt()
-socketio = SocketIO()
-login_manager = LoginManager()
+from backend.instances import db, bcrypt, login_manager, socketio
 
 def create_app():
     app = Flask(__name__)

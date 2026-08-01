@@ -1,5 +1,5 @@
 import datetime 
-from backend.app import db
+from backend.instances import db
 
 class GameRecord(db.Model):
     __tablename__ = "games"
