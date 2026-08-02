@@ -4,17 +4,13 @@ import styles from './LobbyPage.module.css'
 import logo from '../assets/cathedral-logo.png'
 import { useState } from 'react'
 import CreateGameModal from '../components/CreateGameModal'
-
-const DUMMY_LOBBIES = [
-    { id: 'abc', host: 'gracz123', color: 'Losowy',   time: '5 min' },
-    { id: 'def', host: 'anna_k',   color: 'Biały',    time: '15 min + 10 s' },
-    { id: 'ghi', host: 'tomek99',  color: 'Czerwony', time: '3 min' },
-]
+import { useLobby } from '../hooks/useLobby'
 
 export default function LobbyPage() {
     const [showModal, setShowModal] = useState(false)
     const { player, logout } = useAuth()
     const navigate = useNavigate()
+    const { lobbies, loading, error, createLobby } = useLobby()
     const isGuest = player?.anonymous
 
     return (
@@ -65,19 +61,16 @@ export default function LobbyPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className={styles.myRow}>
-                                <td>You ({isGuest ? "Guest" : player?.username})</td>
-                                <td>Red</td>
-                                <td>10min + 5s</td>
-                                <td><span className={styles.pillWait}>Waiting for opponent</span></td>
-                                <td></td>
-                            </tr>
-
-                            {DUMMY_LOBBIES.map(l => (
-                                <tr key={l.id} className={styles.row}>
-                                    <td>{l.host}</td>
-                                    <td>{l.color}</td>
-                                    <td>{l.time}</td>
+                            {console.log(lobbies)}
+                            {lobbies.filter(Boolean).map(l => (
+                                <tr key={l.lobby_id} className={l.host_id === player?.playerId ? styles.myRow : styles.row}>
+                                    {console.log(l)}
+                                    <td>{l.host_id === player.playerId ? `You (${player?.username ?? 'Guest'})` : l.host_name}</td>
+                                    <td>{l.host_color}</td>
+                                    <td>
+                                    {l.time_control.base / 60} min
+                                    {l.time_control.increment > 0 ? ` + ${l.time_control.increment}s` : ''}
+                                    </td>
                                     <td><span className={styles.pillOpen}>Open</span></td>
                                     <td><button className={styles.joinBtn}>Join</button></td>
                                 </tr>
@@ -88,7 +81,8 @@ export default function LobbyPage() {
             </main>
 
             {showModal && (
-                <CreateGameModal onClose={() => setShowModal(false)} />
+                <CreateGameModal onClose={() => setShowModal(false)}
+                onCreate={createLobby} />
             )}
         </div>
     )

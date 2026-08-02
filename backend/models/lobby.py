@@ -1,5 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import datetime
+
 from uuid import UUID
 from backend.models.enums import PlayerColor
 from backend.models.time_control import TimeControl
@@ -10,4 +11,4 @@ class Lobby:
     host_id: int
     host_color: PlayerColor
     time_control: TimeControl
-    created_at: datetime
+    created_at: datetime = field(default_factory=datetime.datetime.now)

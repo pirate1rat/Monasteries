@@ -44,7 +44,6 @@ class GameManager:
             host_id, 
             host_color,
             time_control,
-            datetime.datetime.now()
         )
         self.active_lobbies[new_lobby_uuid] = new_lobby
         return new_lobby
