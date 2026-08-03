@@ -12,7 +12,12 @@ def create_app():
 
     db.init_app(app)
     bcrypt.init_app(app)
-    socketio.init_app(app, cors_allowed_origins="http://localhost:3000")
+    socketio.init_app(
+        app, 
+        cors_allowed_origins="http://localhost:5173",
+        logger=True,
+        engineio_logger=True
+    )
     login_manager.init_app(app)
 
     @login_manager.user_loader

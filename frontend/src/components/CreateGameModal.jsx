@@ -23,7 +23,7 @@ export default function CreateGameModal({ onClose, onCreate }) {
 
     async function handleCreate() {
         const timeControl = isCustom 
-        ? { base: customMins * 60, incremental: customInc }
+        ? { base: customMin * 60, incremental: customInc }
         : { base: TIME_PRESETS[preset].base, incremental: TIME_PRESETS[preset].incremental}
 
         await onCreate(color, timeControl)
@@ -31,7 +31,7 @@ export default function CreateGameModal({ onClose, onCreate }) {
     }
 
     return (
-        <div className={styles.overlay} on onClick={onClose}>
+        <div className={styles.overlay} onClick={onClose}>
             <div className={styles.modal} onClick={e => e.stopPropagation()}>
                 <div className={styles.header}>
                     <h3>New game</h3>

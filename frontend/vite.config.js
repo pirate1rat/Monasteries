@@ -9,7 +9,8 @@ export default defineConfig({
             '/lobbies': 'http://localhost:5000',
             '/socket.io': {
                 target: 'http://localhost:5000',
-                ws: true
+                ws: true,
+                changeOrigin: true
             }
         }
     }

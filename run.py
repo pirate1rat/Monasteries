@@ -1,6 +1,7 @@
 from backend import app
+from backend.instances import socketio
 
-flask_app = app.create_app()
+app = app.create_app()
 
 if __name__ == '__main__':
-    flask_app.run(debug=True, port=5000)
+    socketio.run(app, debug=True, port=5000)

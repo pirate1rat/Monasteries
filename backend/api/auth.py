@@ -1,7 +1,7 @@
 import os
 
 from flask import Blueprint, session, request, jsonify
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, current_user
 
 from backend.app import bcrypt
 from backend.db.operations import create_user, username_exists, email_exists, get_user_by_email
@@ -17,9 +17,10 @@ def login():
 
         if user is None or not bcrypt.check_password_hash(user.password, data["password"]):
             return jsonify({"error": "invalid credentials"}), 401
-        
-        login_user(user)
-        return jsonify({"status": "ok", "username": user.username})
+
+        session.permanent = True
+        login_user(user, remember=True)
+        return jsonify({"status": "ok"})
 
 @auth_bp.route("/logout", methods=['POST'])
 def logout():
@@ -37,9 +38,30 @@ def register():
         else:
             return jsonify({"error": "username or email already taken"}), 409
 
+@auth_bp.route("/me", methods=['GET'])
+def me():
+    if current_user.is_authenticated:
+        return jsonify({
+            "status": "ok",
+            "player_id": current_user.user_id,
+            "username":  current_user.username,
+            "anonymous": False,
+        })
+
+    player_id = session.get("player_id")
+    if player_id:
+        return jsonify({
+            "status": "ok",
+            "player_id": player_id,
+            "username":  None,
+            "anonymous": True,
+        })
+    return jsonify({"status": "not_logged_in"}), 401
+
 @auth_bp.route("/anonymous", methods=['POST'])
 def anonymous():
     anon_id = -abs(hash(os.urandom(8)))
-    session["playerId"] = anon_id
+    session["player_id"] = anon_id
     session["is_anonymous"] = True
-    return jsonify({"status": "ok", "playerId": anon_id})
+    session.permanent = True
+    return jsonify({"status": "ok", "player_id": anon_id})

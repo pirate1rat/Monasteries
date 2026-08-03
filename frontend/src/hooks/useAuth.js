@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react'
 import api from '../services/api'
 
 class Player {
-    constructor({ playerId = null, username = null, email = null, anonymous = false } = {}) {
-        this.playerId = playerId
+    constructor({ player_id = null, username = null, anonymous = false } = {}) {
+        this.playerId = player_id
         this.username = username
-        this.email = email
         this.anonymous = anonymous
     }
 }
@@ -18,22 +17,23 @@ function setPlayer(p) {
     _listeners.forEach(fn => fn(p))
 }
 
-async function loginAnonymous() {
-    const res = await api.post('auth/anonymous')
-    if(res.data.status === 'ok') {
-        setPlayer(new Player({anonymous: true, playerId: res.data.playerId}))
-    }
-    return res
-}
-
 export function useAuth() {
     const [player, setLocalPlayer] = useState(_player)
 
     useEffect(() => {
         _listeners.add(setLocalPlayer)
 
-        if (!_player) {
-            loginAnonymous()
+        if (_player === null) {
+            api.get('auth/me')
+            .then(res => setPlayer(new Player(res.data)))
+            .catch(() => {
+                api.post('/auth/anonymous')
+                    .then(res => setPlayer(new Player({
+                            player_id: res.data.player_id,
+                            username:  null,
+                            anonymous: true,
+                    })))
+            })
         }
 
         return () => _listeners.delete(setLocalPlayer)
@@ -42,21 +42,23 @@ export function useAuth() {
     async function login(email, password) {
         const res = await api.post('/auth/login', {email, password})
         if(res.data.status === 'ok') {
-            setPlayer(new Player({username: res.data.username, email, anonymous: false}))
+            const me = await api.get('/auth/me')
+            setPlayer(new Player(me.data))  
         }
         return res
     }
 
     async function logout() {
         await api.post('auth/logout')
-        await loginAnonymous()
+        const res = await api.post('/auth/anonymous')
+        setPlayer(new Player({
+            player_id: res.data.player_id,
+            anonymous: true,
+        }))
     }
 
     async function register(username, email, password) {
-        const res = await api.post('/auth/register', {username, email, password})
-        if(res.data.status === 'ok') {
-            setPlayer(new Player({username, email, anonymous: false}))
-        }
+        const res = await api.post('/auth/register', { username, email, password })
         return res
     }
 
