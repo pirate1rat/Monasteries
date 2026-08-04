@@ -5,6 +5,7 @@ import LobbyPage    from './pages/LobbyPage'
 // import GamePage     from './pages/GamePage'
 // import TutorialPage from './pages/TutorialPage'
 import { useAuth }  from './hooks/useAuth'
+import GamePage from './pages/GamePage'
 
 export default function App() {
     const { player } = useAuth()
@@ -18,6 +19,7 @@ export default function App() {
                 {/* <Route path="/" element={player ? <LobbyPage/> : <Navigate to="/login" />} /> */}
                 <Route path="/" element={<LobbyPage/>} />
                 {/* <Route path="/game/gameId" element={player ? <GamePage/> : <Navigate to="/login" />} /> */}
+                <Route path="/test" element={<GamePage/>} />
             </Routes>
         </BrowserRouter>
     )
