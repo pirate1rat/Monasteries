@@ -157,7 +157,7 @@
 }
 
 .boardLabelsTop span {
-    width: 44px;
+    width: 64px;
     height: 18px;
 }
 
@@ -173,13 +173,13 @@
 
 .boardLabelsLeft span {
     width: 18px;
-    height: 44px;
+    height: 64px;
 }
 
 .board {
     display: grid;
-    grid-template-columns: repeat(10, 44px);
-    grid-template-rows: repeat(10, 44px);
+    grid-template-columns: repeat(10, 64px);
+    grid-template-rows: repeat(10, 64px);
     gap: 2px;
     border: 2px solid var(--gp-border);
     border-radius: 6px;

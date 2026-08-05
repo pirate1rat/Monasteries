@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import styles from './GamePage.module.css'
 
+const DEV = import.meta.env.DEV
+
 function PieceGrid({ cells, color, cellSize }) {
     const minR = Math.min(...cells.map(c => c[0]))
     const minC = Math.min(...cells.map(c => c[1]))
@@ -233,6 +235,24 @@ export default function GamePage() {
 
             {showPopup && (
                 <WinnerPopup winner={winner} onClose={() => setShowPopup(false)} />
+            )}
+
+            {DEV && (
+                <div style={{
+                    position: 'fixed', bottom: 16, left: 16,
+                    background: 'rgba(0,0,0,0.8)', padding: '8px 12px',
+                    borderRadius: 8, display: 'flex', gap: 8, zIndex: 200
+                }}>
+                    <button onClick={() => { setWinner('You'); setGameOver(true); setShowPopup(true) }}>
+                        [DEV] Win
+                    </button>
+                    <button onClick={() => { setWinner(opponentName); setGameOver(true); setShowPopup(true) }}>
+                        [DEV] Lose
+                    </button>
+                    <button onClick={() => setShowPopup(false)}>
+                        [DEV] Hide popup
+                    </button>
+                </div>
             )}
         </div>
     )
