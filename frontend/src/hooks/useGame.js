@@ -1,0 +1,193 @@
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { io } from 'socket.io-client'
+import { PIECE_CATALOG } from '../data/pieceCatalog'
+
+const socket = io()
+
+function buildPieceList(piecesFromServer) {
+    if(!piecesFromServer) return []
+
+    return Object.entries(piecesFromServer)
+        .filter(([, qty]) => qty > 0)
+        .map(([id, qty]) => ({
+            piece_id: Number(id),
+            quantity: qty,
+            ...PIECE_CATALOG([Number(id)] ?? { name: '?', cells: [[0, 0]], color: 'neutral'})
+        }))
+}
+
+function buildBoard(boardFromServer){
+    if(!boardFromServer) return Array(100).fill(null)
+    return boardFromServer.grid.flat()
+}
+
+export function useGame(gameId) {
+    //game state
+    const [board, setBoard] = useState(Array(100).fill(null))
+    const [playerPieces, setPlayerPieces] = useState([])
+    const [oppPieces, setOppPieces] = useState([])
+    const [playerColor, setPlayerColor] = useState(null)   // WHITE/RED
+    const [currentTurn, setCurrentTurn] = useState(null)
+    const [playerTime, setPlayerTime] = useState(null)
+    const [oppTime, setOppTime] = useState(null)
+    const [history, setHistory] = useState([])
+    const [status, setStatus] = useState('in_progress')
+    const [result, setResult] = useState(null)
+    const [drawOffered, setDrawOffered] = useState(false)
+    const [oppDisconnected, setOppDisconnected] = useState(false)
+    const [reconnectTimer, setReconnectTimer] = useState(null)
+    const [error, setError] = useState(null)
+    const [connected, setConnected] = useState(false)
+
+    //piece and rotation
+    const [selectedPiece, setSelectedPiece] = useState(null)
+    const [selectedRotation, setSelectedRotation] = useState(0)
+
+    const gameIdRef = useRef(gameId)
+
+    useEffect(() => {
+        socket.emit('join_game', { game_id: gameId })
+
+        socket.on('connect', () => setConnected(true))
+        socket.on('disconnect', () => setConnected(false))
+
+        socket.on('game_state', (data) => {
+            setBoard(buildBoard(data.board))
+            setPlayerPieces(buildPieceList(data.player_pieces))
+            setOppPieces(buildPieceList(data.opponent_pieces))
+            setPlayerColor(data.player_color)
+            setCurrentTurn(data.current_turn)
+            setPlayerTime(data.player_time)
+            setOppTime(data.opponent_time)
+            setStatus(data.status)
+            setResult(data.result)
+        })
+
+        socket.on('move_made', (data) => {
+            setBoard(buildBoard(data.board))
+            setCurrentTurn(data.current_turn)
+            setPlayerTime(data.player_time)
+            setOppTime(data.opponent_time)
+            setPlayerPieces(buildPieceList(data.player_pieces))
+            setOppPieces(buildPieceList(data.opponent_pieces))
+            setHistory(prev => [...prev, {
+                move: prev.length + 1,
+                player: data.current_turn,
+                action: data.move_notation
+            }])
+            setSelectedPiece(null)
+            setSelectedRotation(0)
+        })
+
+        socket.on('game_over', (data) => {
+            setStatus('finished')
+            setResult(data.result)
+        })
+
+        socket.on('draw_proposed', () => setDrawOffered(true))
+        socket.on('draw_rejected', () => setDrawOffered(false))
+
+        socket.on('opponent_disconnected', (data) => {
+            setOppDisconnected(true)
+            setReconnectTimer(data.reconnect_time_left)
+        })
+
+        socket.on('opponent_reconnected', () => {
+            setOppDisconnected(false)
+            setReconnectTimer(null)
+        })
+
+        socket.on('error', (data) => setError(data.message))
+
+        return () => {
+            socket.off('game_state')
+            socket.off('move_made')
+            socket.off('game_over')
+            socket.off('draw_proposed')
+            socket.off('draw_rejected')
+            socket.off('opponent_disconnected')
+            socket.off('opponent_reconnected')
+            socket.off('error')
+        }
+    }, [gameId])
+
+    const makeMove = useCallback((pieceId, anchor, rotation) => {
+        socket.emit('make_move', {
+            game_id: gameIdRef.current,
+            piece_id: pieceId,
+            anchor,
+            rotation
+        })
+    }, [])
+
+    const resign = useCallback(() => {
+        socket.emit('resign', {game_id : gameIdRef.current})
+    }, [])
+
+    const proposeDraw = useCallback(() => {
+        socket.emit('propose_draw', { game_id: gameIdRef.current })
+    }, [])
+
+    const acceptDraw = useCallback(() => {
+        socket.emit('accept_draw', { game_id: gameIdRef.current })
+        setDrawOffered(false)
+    }, [])
+
+    const rejectDraw = useCallback(() => {
+        socket.emit('reject_draw', { game_id: gameIdRef.current })
+        setDrawOffered(false)
+    }, [])
+    
+    //piece selection
+    const selectPiece = useCallback((pieceId) => {
+        setSelectedPiece(prev => prev === pieceId ? null : pieceId)
+        setSelectedRotation(0)
+    }, [])
+
+    const selectRotation = useCallback(() => {
+        setSelectedRotation(prev => (prev + 1) % 4)
+    }, [])
+
+    const isPlayerTurn = playerColor === currentTurn && status === 'in_progress'
+
+    return {
+        // board state
+        board,
+        playerPieces,
+        oppPieces,
+        playerColor,
+        currentTurn,
+        isPlayerTurn,
+
+        // timers
+        playerTime,
+        oppTime,
+
+        // history and status
+        history,
+        status,
+        result,
+
+        // interactions
+        drawOffered,
+        oppDisconnected,
+        reconnectTimer,
+
+        //
+        connected,
+        error,
+
+        // piece selection (UI)
+        selectedPiece,
+        selectedRotation,
+        selectPiece,
+        selectRotation,
+
+        // actions
+        makeMove,
+        resign,
+        proposeDraw,
+        acceptDraw,
+        rejectDraw,
+    }
+}
