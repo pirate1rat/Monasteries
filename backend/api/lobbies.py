@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, session
-from flask_login import current_user, login_required
+from flask_login import current_user
 
 from backend.instances import socketio
 from backend.models.time_control import TimeControl
@@ -37,8 +37,3 @@ def get_or_create_lobbies():
         lobby_dict = lobby_to_dict(lobby)
         socketio.emit('lobby_created', lobby_dict)
         return jsonify({"status": "ok", "lobby": lobby_dict})
-
-# @lobbies_bp.route("/", methods=["POST"])
-# @login_required
-# def create_lobby():
-#     pass

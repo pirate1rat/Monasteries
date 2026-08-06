@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useGame } from '../hooks/useGame'
+import { useParams } from 'react-router-dom'
 import styles from './GamePage.module.css'
 
 const DEV = import.meta.env.DEV
@@ -51,23 +53,23 @@ function PieceSlot({ piece, count, color, compact }) {
 const PLAYER_COLOR = '#C8A96E'
 const OPPONENT_COLOR = '#6E8DC8'
 
-const PLAYER_PIECES = [
-    { id: 'mono',      cells: [[0,0]],                                   count: 2 },
-    { id: 'duo',       cells: [[0,0],[0,1]],                             count: 2 },
-    { id: 'trio_i',    cells: [[0,0],[0,1],[0,2]],                       count: 1 },
-    { id: 'trio_l',    cells: [[0,0],[1,0],[1,1]],                       count: 1 },
-    { id: 'quad_sq',   cells: [[0,0],[0,1],[1,0],[1,1]],                 count: 1 },
-    { id: 'quad_l',    cells: [[0,0],[1,0],[2,0],[2,1]],                 count: 1 },
-    { id: 'long',      cells: [[0,0],[0,1],[0,2],[0,3]],                 count: 1 },
-    { id: 'cathedral', cells: [[0,1],[1,0],[1,1],[1,2],[2,1]],           count: 1 },
-]
+// const PLAYER_PIECES = [
+//     { id: 'mono',      cells: [[0,0]],                                   count: 2 },
+//     { id: 'duo',       cells: [[0,0],[0,1]],                             count: 2 },
+//     { id: 'trio_i',    cells: [[0,0],[0,1],[0,2]],                       count: 1 },
+//     { id: 'trio_l',    cells: [[0,0],[1,0],[1,1]],                       count: 1 },
+//     { id: 'quad_sq',   cells: [[0,0],[0,1],[1,0],[1,1]],                 count: 1 },
+//     { id: 'quad_l',    cells: [[0,0],[1,0],[2,0],[2,1]],                 count: 1 },
+//     { id: 'long',      cells: [[0,0],[0,1],[0,2],[0,3]],                 count: 1 },
+//     { id: 'cathedral', cells: [[0,1],[1,0],[1,1],[1,2],[2,1]],           count: 1 },
+// ]
 
-const OPPONENT_PIECES = [
-    { id: 'mono',    cells: [[0,0]],                         count: 1 },
-    { id: 'duo',     cells: [[0,0],[0,1]],                   count: 1 },
-    { id: 'trio_l',  cells: [[0,0],[1,0],[1,1]],             count: 2 },
-    { id: 'quad_sq', cells: [[0,0],[0,1],[1,0],[1,1]],       count: 1 },
-]
+// const OPPONENT_PIECES = [
+//     { id: 'mono',    cells: [[0,0]],                         count: 1 },
+//     { id: 'duo',     cells: [[0,0],[0,1]],                   count: 1 },
+//     { id: 'trio_l',  cells: [[0,0],[1,0],[1,1]],             count: 2 },
+//     { id: 'quad_sq', cells: [[0,0],[0,1],[1,0],[1,1]],       count: 1 },
+// ]
 
 const SAMPLE_HISTORY = [
     { move: 1,  player: 'Opponent', action: 'Cathedral → D5'    },
@@ -155,21 +157,17 @@ function WinnerPopup({ winner, onClose }) {
 }
 
 export default function GamePage() {
+    const { gameId } = useParams()
+    const game = useGame(gameId)
+
     const [gameOver, setGameOver] = useState(false)
-    const [winner, setWinner]     = useState(null)
+    const [winner, setWinner] = useState(null)
     const [showPopup, setShowPopup] = useState(false)
 
     const playerName   = 'Player'
     const opponentName = 'Opponent'
     const playerTime   = '08:42'
     const opponentTime = '09:15'
-    const playerTurn   = true
-
-    function handleSurrender() {
-        setWinner(opponentName)
-        setGameOver(true)
-        setShowPopup(true)
-    }
 
     function handleOfferDraw() {
         //TODO
@@ -184,7 +182,7 @@ export default function GamePage() {
                     <section className={styles.panelSmall}>
                         <h3 className={styles.panelTitle}>Opponent's hand</h3>
                         <div className={styles.piecesGridCompact}>
-                            {OPPONENT_PIECES.map(p => (
+                            {game.oppPieces.map(p => (
                                 <PieceSlot key={p.id} piece={p} count={p.count} color={OPPONENT_COLOR} compact />
                             ))}
                         </div>
@@ -193,7 +191,7 @@ export default function GamePage() {
                     <section className={styles.panelLarge}>
                         <h3 className={styles.panelTitle}>Your hand</h3>
                         <div className={styles.piecesGrid}>
-                            {PLAYER_PIECES.map(p => (
+                            {game.playerPieces.map(p => (
                                 <PieceSlot key={p.id} piece={p} count={p.count} color={PLAYER_COLOR} />
                             ))}
                         </div>
@@ -207,20 +205,20 @@ export default function GamePage() {
 
                 {/* ── Right column ── */}
                 <aside className={styles.rightCol}>
-                    <Timer time={opponentTime} label={opponentName} active={!playerTurn} />
+                    <Timer time={opponentTime} label={opponentName} active={!game.isPlayerTurn} />
 
                     <section className={styles.historyPanel}>
                         <h3 className={styles.panelTitle}>Move history</h3>
                         <MoveHistory entries={SAMPLE_HISTORY} />
                     </section>
 
-                    <Timer time={playerTime} label={playerName} active={playerTurn} />
+                    <Timer time={playerTime} label={playerName} active={game.isPlayerTurn} />
 
                     <div className={styles.actionButtons}>
                         {!gameOver ? (
                             <>
-                                <button className={styles.btnDraw} onClick={handleOfferDraw}>Offer Draw</button>
-                                <button className={styles.btnSurrender} onClick={handleSurrender}>Surrender</button>
+                                <button className={styles.btnDraw} onClick={game.proposeDraw()}>Offer Draw</button>
+                                <button className={styles.btnSurrender} onClick={game.resign()}>Surrender</button>
                             </>
                         ) : (
                             <>
