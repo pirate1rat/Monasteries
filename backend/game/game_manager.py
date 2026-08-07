@@ -33,13 +33,13 @@ class GameManager:
             self._socketio = socketio
 
             self.active_games: dict[int, "Game"] = {}
-            self.active_lobbies: dict[UUID, Lobby] = {}
+            self.active_lobbies: dict[str, Lobby] = {}
             self._next_game_id: int = 1
             self._initialized = True
         
     def create_lobby(self, host_id: int, host_color: PlayerColor, time_control: TimeControl) -> Lobby:
-        new_lobby_uuid = uuid4()
-        new_lobby =  Lobby(
+        new_lobby_uuid = str(uuid4())
+        new_lobby = Lobby(
             new_lobby_uuid,
             host_id, 
             host_color,
@@ -77,9 +77,10 @@ class GameManager:
         """
 
         lobby = self.active_lobbies.get(lobby_id)
-        if lobby_id is None: 
+        if lobby is None: 
             return None
 
+        print(lobby)
         if lobby.host_color == PlayerColor.NEUTRAL:
             host_color = random.choice([PlayerColor.WHITE, PlayerColor.RED])
         else:

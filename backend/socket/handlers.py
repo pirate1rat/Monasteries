@@ -106,7 +106,7 @@ def register_handlers(socketio: SocketIO):
             "red_player": game.players.inverse[PlayerColor.RED],
             "time_control": {
                 "base": game.time_control.base,
-                "increment": game.time_control.increment,
+                "increment": game.time_control.incremental,
             },
             "current_turn": game.current_turn.value,
         }, room=room)

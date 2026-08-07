@@ -9,7 +9,7 @@ export function useLobby() {
     const [lobbies, setLobbies] = useState([])
     const [loading, setLoading] = useState(true)
     const [error,   setError] = useState(null)
-    navigate = useNavigate()
+    const navigate = useNavigate()
 
     useEffect(() => {
         fetchLobbies()
