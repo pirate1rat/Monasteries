@@ -8,23 +8,83 @@ from backend.models.placement import Placement
 from backend.models.enums import PlayerColor, GameStatus
 
 
+_lobby_host_sids: dict[str, str] = {}
+
+def get_current_player_id():
+    return current_user.user_id if current_user.is_authenticated else session["player_id"]
+
+def game_state_payload(game, player_id):
+    return game.get_state_for_player(player_id)
+
+def move_made_payload(game, result):
+    white_id = game.players.inverse[PlayerColor.WHITE]
+    red_id   = game.players.inverse[PlayerColor.RED]
+    return {
+        "token_id": result.token_id,
+        "captured": result.captured.token_id if result.captured else None,
+        "territories_gained": list(result.territories_gained),
+        "board": game.board.to_serializable(),
+        "current_turn": game.current_turn.value,
+        "white_time": game.white_time_left,
+        "red_time": game.red_time_left,
+        "opponent_auto_passed": result.opponent_auto_passed,
+        "your_pieces": {
+            str(pid): qty
+            for pid, qty in game.pieces_on_hand[PlayerColor.WHITE].items()
+        } if game.players.inverse.get(PlayerColor.WHITE) else {},
+        "opponent_pieces": {
+            str(pid): qty
+            for pid, qty in game.pieces_on_hand[PlayerColor.RED].items()
+        } if game.players.inverse.get(PlayerColor.RED) else {},
+    }
+
 def register_handlers(socketio: SocketIO):
 
     #connection
     @socketio.on("connect")
     def handle_connect():
-        #TODO
-        pass
+        player_id = get_current_player_id()
+        if player_id is None:
+            return
+
+        game = game_manager.get_game_for_player(player_id)
+        if game is None:
+            return
+
+        room = str(game.game_id)
+        game_manager.handle_reconnect(game.game_id, player_id)
+        emit("game_state", game_state_payload(game, player_id))
+        emit("opponent reconnected", {}, room=room, include_self=False)
 
     @socketio.on("disconnect")
     def handle_disconnect():
-        #TODO
-        pass
+        player_id = get_current_player_id()
+        if player_id is None:
+            return
+
+        game = game_manager.get_game_for_player(player_id)
+        if game is None:
+            return
+
+        room = str(game.game_id)
+
+        def on_timeout(game_id, result):
+            socketio.emit("game_over", {"result": result.value}, room=room)
+            game_manager.end_game(game_id)
+
+        game_manager.handle_disconnect(game.game_id, player_id, on_timeout)
+        emit("opponent_disconnected", {"reconnected_time_left": 60}, room=room, include_self=False)
 
     #lobby
+    @socketio.on("watch_lobby")
+    def handle_watch_lobby(data):
+        lobby_id = data.get("lobby_id")
+        if lobby_id:
+            _lobby_host_sids[lobby_id] = request.sid
+
     @socketio.on("join_lobby")
     def handle_join_lobby(data):
-        player_id = current_user.user_id if current_user.is_authenticated else session["player_id"]
+        player_id = get_current_player_id()
         lobby_id = data.get("lobby_id")
 
         game = game_manager.join_lobby(lobby_id, player_id)
@@ -35,6 +95,10 @@ def register_handlers(socketio: SocketIO):
         room = str(game.game_id)
         join_room(room)
 
+        host_sid = _lobby_host_sids.pop(lobby_id, None)
+        if host_sid:
+            socketio.server.enter_room(host_sid, room)
+        
         emit("game_started", {
             "game_id": game.game_id,
             "board": game.board.to_serializable(),
@@ -47,10 +111,27 @@ def register_handlers(socketio: SocketIO):
             "current_turn": game.current_turn.value,
         }, room=room)
 
+    @socketio.on("join_game")
+    def handle_join_game(data):
+        player_id = get_current_player_id()
+        game_id = data.get("game_id")
+
+        game = game_manager.get_game(game_id)
+        if game is None:
+            emit("error", {"code": "GAME_NOT_FOUND"})
+            return
+
+        if player_id not in game.players:
+            emit("error", {"code": "NOT_A_PLAYER"})
+            return
+
+        join_room(str(game_id))
+        emit("game_state", game_state_payload(game, player_id))
+
     #game
     @socketio.on("make_move")
     def handle_make_move(data):
-        player_id = current_user.user_id if current_user.is_authenticated else session["player_id"]
+        player_id = get_current_player_id()
         game_id = data.get("game_id")
 
         game = game_manager.get_game(game_id)
@@ -65,9 +146,7 @@ def register_handlers(socketio: SocketIO):
             rotation = data["rotation"],
             color = game._color(player_id),
         )
-
         move = Move(placement, move_timestamp=0)
-
         result = game.apply_move(player_id, move)
         if result is None:
             emit("error", {"code": "INVALID_MOVE"})
@@ -96,7 +175,7 @@ def register_handlers(socketio: SocketIO):
 
     @socketio.on("resign")
     def handle_resign(data):
-        player_id = current_user.user_id if current_user.is_authenticated else session["player_id"]
+        player_id = get_current_player_id()
         game_id = data.get("game_id")
 
         game = game_manager.get_game(game_id)
@@ -111,7 +190,7 @@ def register_handlers(socketio: SocketIO):
 
     @socketio.on("propose_draw")
     def handle_propose_draw(data):
-        player_id = current_user.user_id if current_user.is_authenticated else session["player_id"]
+        player_id = get_current_player_id()
         game_id = data.get("game_id")
 
         game = game_manager.get_game(game_id)
@@ -124,11 +203,11 @@ def register_handlers(socketio: SocketIO):
             return
 
         room = str(game_id)
-        emit("draw_propossed", {"by": player_id}, room=room)
+        emit("draw_proposed", {"by": player_id}, room=room)
 
     @socketio.on("accept_draw")
     def handle_accept_draw(data):
-        player_id = current_user.user_id if current_user.is_authenticated else session["player_id"]
+        player_id = get_current_player_id()
         game_id = data.get("game_id")
 
         game = game_manager.get_game(game_id)
@@ -147,7 +226,7 @@ def register_handlers(socketio: SocketIO):
 
     @socketio.on("reject_draw")
     def handle_reject_draw(data):
-        player_id = current_user.user_id if current_user.is_authenticated else session["player_id"]
+        player_id = get_current_player_id()
         game_id = data.get("game_id")
 
         game = game_manager.get_game(game_id)
@@ -156,7 +235,7 @@ def register_handlers(socketio: SocketIO):
             return
 
         result = game.reject_draw(player_id)
-        if result is None:
+        if not result:
             emit("error", {"code": "INVALID_DRAW_REJECTION"})
             return
 

@@ -10,7 +10,7 @@ export default function LobbyPage() {
     const [showModal, setShowModal] = useState(false)
     const { player, logout } = useAuth()
     const navigate = useNavigate()
-    const { lobbies, loading, error, createLobby } = useLobby()
+    const { lobbies, loading, error, joinLobby, createLobby } = useLobby()
     const isGuest = player?.anonymous
 
     return (
@@ -72,7 +72,7 @@ export default function LobbyPage() {
                                     {l.time_control.increment > 0 ? ` + ${l.time_control.increment}s` : ''}
                                     </td>
                                     <td><span className={styles.pillOpen}>Open</span></td>
-                                    <td><button className={styles.joinBtn}>Join</button></td>
+                                    <td><button className={styles.joinBtn} onClick={() => joinLobby(l.lobby_id)}>Join</button></td>
                                 </tr>
                             ))}
                         </tbody>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom' 
 import api from '../services/api'
 import { io } from 'socket.io-client'
 
@@ -8,6 +9,7 @@ export function useLobby() {
     const [lobbies, setLobbies] = useState([])
     const [loading, setLoading] = useState(true)
     const [error,   setError] = useState(null)
+    navigate = useNavigate()
 
     useEffect(() => {
         fetchLobbies()
@@ -23,9 +25,14 @@ export function useLobby() {
             setLobbies(prev => prev.filter(l => l.lobby_id !== lobbyId))
         })
 
+        socket.on('game_started', (data) => {
+            navigate(`/game/${data.game_id}`)
+        })
+
         return () => {
             socket.off('lobby_created')
             socket.off('lobby_cancelled')
+            socket.off('game_started')
         }
     }, [])
 
@@ -45,11 +52,16 @@ export function useLobby() {
         try {
             const res = await api.post('/lobbies/', {color, timeControl})
             return res.data.lobby
+            socket.emit('watch_lobby', { lobby_id: newLobby.lobby_id })
         } catch (e) {
             setError('Unable to create lobby')
             return null
         }
     }
 
-    return { lobbies, loading, error, createLobby, fetchLobbies }
+    async function joinLobby(lobbyId) {
+        socket.emit('join_lobby', { lobby_id: lobbyId })
+    }
+
+    return { lobbies, loading, error, createLobby, joinLobby, fetchLobbies }
 }
