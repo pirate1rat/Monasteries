@@ -11,7 +11,7 @@ from backend.models.enums import PlayerColor, GameStatus
 _lobby_host_sids: dict[str, str] = {}
 
 def get_current_player_id():
-    return current_user.user_id if current_user.is_authenticated else session["player_id"]
+    return current_user.user_id if current_user.is_authenticated else session.get("player_id")
 
 def game_state_payload(game, player_id):
     return game.get_state_for_player(player_id)
@@ -110,6 +110,19 @@ def register_handlers(socketio: SocketIO):
             },
             "current_turn": game.current_turn.value,
         }, room=room)
+
+    @socketio.on("cancel_lobby")
+    def handle_cancel_lobby(data):
+        player_id = get_current_player_id()
+        lobby_id  = data.get("lobby_id")
+
+        success = game_manager.cancel_lobby(lobby_id, player_id)
+        if not success:
+            emit("error", {"code": "LOBBY_NOT_FOUND"})
+            return
+
+        _lobby_host_sids.pop(lobby_id, None)
+        socketio.emit("lobby_cancelled", {"lobby_id": lobby_id})
 
     @socketio.on("join_game")
     def handle_join_game(data):

@@ -21,7 +21,7 @@ export function useLobby() {
             })
         })
 
-        socket.on('lobby_canceled', (lobbyId) => {
+        socket.on('cancel_lobby', (lobbyId) => {
             setLobbies(prev => prev.filter(l => l.lobby_id !== lobbyId))
         })
 
@@ -31,7 +31,7 @@ export function useLobby() {
 
         return () => {
             socket.off('lobby_created')
-            socket.off('lobby_cancelled')
+            socket.off('cancel_lobby')
             socket.off('game_started')
         }
     }, [])
@@ -63,5 +63,9 @@ export function useLobby() {
         socket.emit('join_lobby', { lobby_id: lobbyId })
     }
 
-    return { lobbies, loading, error, createLobby, joinLobby, fetchLobbies }
+    async function cancelLobby(lobbyId) {
+        socket.emit('cancel_lobby', { lobby_id: lobbyId })
+    }
+
+    return { lobbies, loading, error, createLobby, joinLobby, cancelLobby, fetchLobbies }
 }

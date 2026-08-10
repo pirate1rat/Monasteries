@@ -10,7 +10,7 @@ export default function LobbyPage() {
     const [showModal, setShowModal] = useState(false)
     const { player, logout } = useAuth()
     const navigate = useNavigate()
-    const { lobbies, loading, error, joinLobby, createLobby } = useLobby()
+    const { lobbies, loading, error, joinLobby, createLobby, cancelLobby } = useLobby()
     const isGuest = player?.anonymous
 
     return (
@@ -61,10 +61,8 @@ export default function LobbyPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {console.log(lobbies)}
                             {lobbies.filter(Boolean).map(l => (
                                 <tr key={l.lobby_id} className={l.host_id === player?.playerId ? styles.myRow : styles.row}>
-                                    {console.log(l)}
                                     <td>{l.host_id === player.playerId ? `You (${player?.username ?? 'Guest'})` : l.host_name}</td>
                                     <td>{l.host_color}</td>
                                     <td>
@@ -72,7 +70,18 @@ export default function LobbyPage() {
                                     {l.time_control.increment > 0 ? ` + ${l.time_control.increment}s` : ''}
                                     </td>
                                     <td><span className={styles.pillOpen}>Open</span></td>
-                                    <td><button className={styles.joinBtn} onClick={() => joinLobby(l.lobby_id)}>Join</button></td>
+                                    <td>
+                                        {l.host_id === player?.playerId ?
+                                        <button className={styles.cancelBtn}
+                                                onClick={() => cancelLobby(l.lobby_id)}>
+                                            Cancel
+                                        </button>
+                                        : <button className={styles.joinBtn}
+                                                onClick={() => joinLobby(l.lobby_id)}>
+                                            Join
+                                        </button>
+                                    }
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

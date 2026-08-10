@@ -193,3 +193,17 @@
 .joinBtn:hover {
   background: rgba(233, 69, 96, 0.25);
 }
+
+.cancelBtn {
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(192, 74, 74, 0.8);
+  background: rgba(40, 40, 40, 0.35);
+  color: #ff8fa1;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.cancelBtn:hover {
+  background: rgba(192, 74, 74, 0.25);
+}

@@ -98,7 +98,7 @@ class GameManager:
         return game
 
     def get_game(self, game_id) -> Game | None:
-        return self.active_games[game_id]
+        return self.active_games.get(game_id)
 
     def get_game_for_player(self, player_id) -> Game | None:
         for game in self.active_games.values():

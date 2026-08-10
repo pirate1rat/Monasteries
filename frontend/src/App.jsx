@@ -13,12 +13,11 @@ export default function App() {
     return (
         <BrowserRouter>
             <Routes>
+                <Route path="/" element={<LobbyPage/>} />
                 <Route path="/login" element={<LoginPage/>} />
                 <Route path="/register" element={<RegisterPage/>} />
                 {/* <Route path="/rules" element={<TutorialPage/>} /> */}
-                {/* <Route path="/" element={player ? <LobbyPage/> : <Navigate to="/login" />} /> */}
-                <Route path="/" element={<LobbyPage/>} />
-                {/* <Route path="/game/gameId" element={player ? <GamePage/> : <Navigate to="/login" />} /> */}
+                <Route path="/game/:gameId" element={<GamePage/>} />
                 <Route path="/test" element={<GamePage/>} />
             </Routes>
         </BrowserRouter>
