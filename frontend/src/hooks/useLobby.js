@@ -54,8 +54,9 @@ export function useLobby() {
     async function createLobby(color, timeControl) {
         try {
             const res = await api.post('/lobbies/', {color, timeControl})
-            return res.data.lobby
-            // socket.emit('watch_lobby', { lobby_id: newLobby.lobby_id })
+            const newLobby = res.data.lobby
+            socket.emit('watch_lobby', { lobby_id: newLobby.lobby_id })
+            return newLobby
         } catch (e) {
             setError('Unable to create lobby')
             return null

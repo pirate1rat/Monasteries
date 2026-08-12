@@ -119,7 +119,7 @@ def register_handlers(socketio: SocketIO):
                 "increment": game.time_control.incremental,
             },
             "current_turn": game.current_turn.value,
-        }, room=room)
+        })
 
     @socketio.on("cancel_lobby")
     def handle_cancel_lobby(data):

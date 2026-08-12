@@ -2,7 +2,6 @@ import { useState } from 'react'
 import styles from './CreateGameModal.module.css'
 import { useAuth } from '../hooks/useAuth'
 import api from '../services/api'
-import { useLobby } from '../hooks/useLobby'
 
 const TIME_PRESETS = [
     { label: '3 min', base: 180, incremental: 0 },

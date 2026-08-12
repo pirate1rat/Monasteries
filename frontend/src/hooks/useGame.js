@@ -12,7 +12,7 @@ function buildPieceList(piecesFromServer) {
         .map(([id, qty]) => ({
             piece_id: Number(id),
             quantity: qty,
-            ...PIECE_CATALOG([Number(id)] ?? { name: '?', cells: [[0, 0]], color: 'neutral'})
+            ...(PIECE_CATALOG[Number(id)] ?? { name: '?', cells: [[0, 0]], color: 'neutral'})
         }))
 }
 

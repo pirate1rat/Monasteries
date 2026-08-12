@@ -7,3 +7,4 @@ db = SQLAlchemy()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
 socketio = SocketIO()
+lobby_host_sids: dict[str, str] = {}

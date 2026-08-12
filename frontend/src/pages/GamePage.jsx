@@ -43,7 +43,7 @@ function PieceSlot({ piece, count, color, compact }) {
     return (
         <div className={`${styles.pieceSlot} ${compact ? styles.pieceSlotCompact : ''}`}>
             <div className={styles.pieceShape}>
-                <PieceGrid cells={piece.cells} color={color} cellSize={cellSize} />
+                <PieceGrid cells={piece.shape} color={color} cellSize={cellSize} />
             </div>
             <span className={styles.pieceCount} style={{ color }}>×{count}</span>
         </div>
@@ -217,8 +217,8 @@ export default function GamePage() {
                     <div className={styles.actionButtons}>
                         {!gameOver ? (
                             <>
-                                <button className={styles.btnDraw} onClick={game.proposeDraw()}>Offer Draw</button>
-                                <button className={styles.btnSurrender} onClick={game.resign()}>Surrender</button>
+                                <button className={styles.btnDraw} onClick={() => game.proposeDraw()}>Offer Draw</button>
+                                <button className={styles.btnSurrender} onClick={() => game.resign()}>Surrender</button>
                             </>
                         ) : (
                             <>

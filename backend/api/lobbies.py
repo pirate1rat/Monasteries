@@ -36,5 +36,4 @@ def get_or_create_lobbies():
         lobby = game_manager.create_lobby(host_id, data["color"], TimeControl(**data["timeControl"]))
         lobby_dict = lobby_to_dict(lobby)
         socketio.emit("lobby_created", lobby_dict)
-        socketio.emit("watch_lobby", {"lobby_id": lobby.lobby_id})
         return jsonify({"status": "ok", "lobby": lobby_dict})

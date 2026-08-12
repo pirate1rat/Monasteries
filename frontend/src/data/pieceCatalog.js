@@ -1,176 +1,165 @@
-export class PiecePrefab {
-constructor(shape, size, color, name, startingAmount) {
-this.shape = shape;
-this.size = size;
-this.color = color;
-this.name = name;
-
-    Object.freeze(this);
-
-}
-}
-
 export const PIECE_CATALOG = {
-0: new PiecePrefab(
-[[0, 0], [0, -1], [1, 0], [0, 1], [0, 2], [-1, 0]],
-6,
-'neutral',
-"Cathedral",
-),
+0: {
+    shape: [[0, 0], [0, -1], [1, 0], [0, 1], [0, 2], [-1, 0]],
+    size: 6,
+    color: 'neutral',
+    name: "Cathedral",
+},
 
-1: new PiecePrefab(
-    [[0, 0]],
-    1,
-    'white',
-    "Tavern_white",
-),
+1: {
+    shape: [[0, 0]],
+    size: 1,
+    color: 'white',
+    name: "Tavern_white",
+},
 
-2: new PiecePrefab(
-    [[0, 0]],
-    1,
-    'red',
-    "Tavern_red",
-),
+2: {
+    shape: [[0, 0]],
+    size: 1,
+    color: 'red',
+    name: "Tavern_red",
+},
 
-3: new PiecePrefab(
-    [[0, 0], [0, 1]],
-    2,
-    'white',
-    "Stable_white",
-),
+3: {
+    shape: [[0, 0], [0, 1]],
+    size: 2,
+    color: 'white',
+    name: "Stable_white",
+},
 
-4: new PiecePrefab(
-    [[0, 0], [0, 1]],
-    2,
-    'red',
-    "Stable_red",
-),
+4: {
+    shape: [[0, 0], [0, 1]],
+    size: 2,
+    color: 'red',
+    name: "Stable_red",
+},
 
-5: new PiecePrefab(
-    [[0, 0], [1, 0], [0, 1]],
-    3,
-    'white',
-    "Inn_white",
-),
+5: {
+    shape: [[0, 0], [1, 0], [0, 1]],
+    size: 3,
+    color: 'white',
+    name: "Inn_white",
+},
 
-6: new PiecePrefab(
-    [[0, 0], [1, 0], [0, 1]],
-    3,
-    'red',
-    "Inn_red",
-),
+6: {
+    shape: [[0, 0], [1, 0], [0, 1]],
+    size: 3,
+    color: 'red',
+    name: "Inn_red",
+},
 
-7: new PiecePrefab(
-    [[0, 0], [0, -1], [0, 1]],
-    3,
-    'white',
-    "Bridge_white",
-),
+7: {
+    shape: [[0, 0], [0, -1], [0, 1]],
+    size: 3,
+    color: 'white',
+    name: "Bridge_white",
+},
 
-8: new PiecePrefab(
-    [[0, 0], [0, -1], [0, 1]],
-    3,
-    'red',
-    "Bridge_red",
-),
+8: {
+    shape: [[0, 0], [0, -1], [0, 1]],
+    size: 3,
+    color: 'red',
+    name: "Bridge_red",
+},
 
-9: new PiecePrefab(
-    [[0, 0], [1, 0], [1, 1], [0, 1]],
-    4,
-    'white',
-    "Square_white",
-),
+9: {
+    shape: [[0, 0], [1, 0], [1, 1], [0, 1]],
+    size: 4,
+    color: 'white',
+    name: "Square_white",
+},
 
-10: new PiecePrefab(
-    [[0, 0], [1, 0], [1, 1], [0, 1]],
-    4,
-    'red',
-    "Square_red",
-),
+10: {
+    shape: [[0, 0], [1, 0], [1, 1], [0, 1]],
+    size: 4,
+    color: 'red',
+    name: "Square_red",
+},
 
-11: new PiecePrefab(
-    [[0, 0], [1, 0], [0, 1], [-1, 0]],
-    4,
-    'white',
-    "Manor_white",
-),
+11: {
+    shape: [[0, 0], [1, 0], [0, 1], [-1, 0]],
+    size: 4,
+    color: 'white',
+    name: "Manor_white",
+},
 
-12: new PiecePrefab(
-    [[0, 0], [1, 0], [0, 1], [-1, 0]],
-    4,
-    'red',
-    "Manor_red",
-),
+12: {
+    shape: [[0, 0], [1, 0], [0, 1], [-1, 0]],
+    size: 4,
+    color: 'red',
+    name: "Manor_red",
+},
 
-13: new PiecePrefab(
-    [[0, 0], [1, 0], [0, 1], [-1, 1]],
-    4,
-    'white',
-    "Abbey_white",
-),
+13: {
+    shape: [[0, 0], [1, 0], [0, 1], [-1, 1]],
+    size: 4,
+    color: 'white',
+    name: "Abbey_white",
+},
 
-14: new PiecePrefab(
-    [[0, 0], [1, 1], [0, 1], [1, 0]],
-    4,
-    'red',
-    "Abbey_red",
-),
+14: {
+    shape: [[0, 0], [1, 1], [0, 1], [1, 0]],
+    size: 4,
+    color: 'red',
+    name: "Abbey_red",
+},
 
-15: new PiecePrefab(
-    [[0, 0], [1, 0], [0, 1], [-1, -1], [0, -1]],
-    5,
-    'white',
-    "Academy_white",
-),
+15: {
+    shape: [[0, 0], [1, 0], [0, 1], [-1, -1], [0, -1]],
+    size: 5,
+    color: 'white',
+    name: "Academy_white",
+},
 
-16: new PiecePrefab(
-    [[0, 0], [0, -1], [1, -1], [0, 1], [-1, 0]],
-    5,
-    'red',
-    "Academy_red",
-),
+16: {
+    shape: [[0, 0], [0, -1], [1, -1], [0, 1], [-1, 0]],
+    size: 5,
+    color: 'red',
+    name: "Academy_red",
+},
 
-17: new PiecePrefab(
-    [[0, 0], [0, -1], [1, 0], [0, 1], [-1, 0]],
-    5,
-    'white',
-    "Infirmary_white",
-),
+17: {
+    shape: [[0, 0], [0, -1], [1, 0], [0, 1], [-1, 0]],
+    size: 5,
+    color: 'white',
+    name: "Infirmary_white",
+},
 
-18: new PiecePrefab(
-    [[0, 0], [0, -1], [1, 0], [0, 1], [-1, 0]],
-    5,
-    'red',
-    "Infirmary_red",
-),
+18: {
+    shape: [[0, 0], [0, -1], [1, 0], [0, 1], [-1, 0]],
+    size: 5,
+    color: 'red',
+    name: "Infirmary_red",
+},
 
-19: new PiecePrefab(
-    [[0, 0], [1, 0], [1, 1], [-1, 1], [-1, 0]],
-    5,
-    'white',
-    "Castle_white",
-),
+19: {
+    shape: [[0, 0], [1, 0], [1, 1], [-1, 1], [-1, 0]],
+    size: 5,
+    color: 'white',
+    name: "Castle_white",
+},
 
-20: new PiecePrefab(
-    [[0, 0], [1, 0], [1, 1], [-1, 1], [-1, 0]],
-    5,
-    'red',
-    "Castle_red",
-),
+20: {
+    shape: [[0, 0], [1, 0], [1, 1], [-1, 1], [-1, 0]],
+    size: 5,
+    color: 'red',
+    name: "Castle_red",
+},
 
-21: new PiecePrefab(
-    [[0, 0], [0, -1], [1, -1], [-1, 1], [-1, 0]],
-    5,
-    'white',
-    "Tower_white",
-),
+21: {
+    shape: [[0, 0], [0, -1], [1, -1], [-1, 1], [-1, 0]],
+    size: 5,
+    color: 'white',
+    name: "Tower_white",
+},
 
-22: new PiecePrefab(
-    [[0, 0], [0, -1], [1, -1], [-1, 1], [-1, 0]],
-    5,
-    'red',
-    "Tower_red",
-),
+22: {
+    shape: [[0, 0], [0, -1], [1, -1], [-1, 1], [-1, 0]],
+    size: 5,
+    color: 'red',
+    name: "Tower_red",
+},
 };
+
 
 Object.freeze(PIECE_CATALOG);
