@@ -97,7 +97,17 @@ def register_handlers(socketio: SocketIO):
 
         host_sid = _lobby_host_sids.pop(lobby_id, None)
         if host_sid:
-            socketio.server.enter_room(host_sid, room)
+            emit("game_started", {
+                "game_id": game.game_id,
+                "board": game.board.to_serializable(),
+                "white_player": game.players.inverse[PlayerColor.WHITE],
+                "red_player": game.players.inverse[PlayerColor.RED],
+                "time_control": {
+                    "base": game.time_control.base,
+                    "increment": game.time_control.incremental,
+                },
+                "current_turn": game.current_turn.value,
+            }, to=host_sid)
         
         emit("game_started", {
             "game_id": game.game_id,
@@ -127,7 +137,7 @@ def register_handlers(socketio: SocketIO):
     @socketio.on("join_game")
     def handle_join_game(data):
         player_id = get_current_player_id()
-        game_id = data.get("game_id")
+        game_id = int(data.get("game_id"))
 
         game = game_manager.get_game(game_id)
         if game is None:
@@ -145,7 +155,7 @@ def register_handlers(socketio: SocketIO):
     @socketio.on("make_move")
     def handle_make_move(data):
         player_id = get_current_player_id()
-        game_id = data.get("game_id")
+        game_id = int(data.get("game_id"))
 
         game = game_manager.get_game(game_id)
         if game is None:
@@ -189,7 +199,7 @@ def register_handlers(socketio: SocketIO):
     @socketio.on("resign")
     def handle_resign(data):
         player_id = get_current_player_id()
-        game_id = data.get("game_id")
+        game_id = int(data.get("game_id"))
 
         game = game_manager.get_game(game_id)
         if game is None:
@@ -204,7 +214,7 @@ def register_handlers(socketio: SocketIO):
     @socketio.on("propose_draw")
     def handle_propose_draw(data):
         player_id = get_current_player_id()
-        game_id = data.get("game_id")
+        game_id = int(data.get("game_id"))
 
         game = game_manager.get_game(game_id)
         if game is None:
@@ -221,7 +231,7 @@ def register_handlers(socketio: SocketIO):
     @socketio.on("accept_draw")
     def handle_accept_draw(data):
         player_id = get_current_player_id()
-        game_id = data.get("game_id")
+        game_id = int(data.get("game_id"))
 
         game = game_manager.get_game(game_id)
         if game is None:
@@ -240,7 +250,7 @@ def register_handlers(socketio: SocketIO):
     @socketio.on("reject_draw")
     def handle_reject_draw(data):
         player_id = get_current_player_id()
-        game_id = data.get("game_id")
+        game_id = int(data.get("game_id"))
 
         game = game_manager.get_game(game_id)
         if game is None:

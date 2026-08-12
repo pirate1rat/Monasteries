@@ -21,8 +21,11 @@ export function useLobby() {
             })
         })
 
-        socket.on('cancel_lobby', (lobbyId) => {
-            setLobbies(prev => prev.filter(l => l.lobby_id !== lobbyId))
+        socket.on('lobby_cancelled', (data) => {
+            setLobbies(prev => {
+                if (!Array.isArray(prev)) return []
+                return prev.filter(l => l.lobby_id !== data.lobby_id)
+            })
         })
 
         socket.on('game_started', (data) => {
@@ -31,7 +34,7 @@ export function useLobby() {
 
         return () => {
             socket.off('lobby_created')
-            socket.off('cancel_lobby')
+            socket.off('lobby_cancelled')
             socket.off('game_started')
         }
     }, [])
@@ -52,7 +55,7 @@ export function useLobby() {
         try {
             const res = await api.post('/lobbies/', {color, timeControl})
             return res.data.lobby
-            socket.emit('watch_lobby', { lobby_id: newLobby.lobby_id })
+            // socket.emit('watch_lobby', { lobby_id: newLobby.lobby_id })
         } catch (e) {
             setError('Unable to create lobby')
             return null
