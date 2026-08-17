@@ -422,3 +422,14 @@
 .popupClose:hover {
     background: #D4B87E;
 }
+
+.pieceSlotSelected {
+    outline: 1px solid rgba(200, 169, 110, 0.6);
+    border-radius: 6px;
+    background: rgba(200, 169, 110, 0.08);
+}
+
+.pieceSlot:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+}

@@ -1,15 +1,43 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useGame } from '../hooks/useGame'
 import { useParams } from 'react-router-dom'
+import { PIECE_CATALOG } from '../data/pieceCatalog'
 import styles from './GamePage.module.css'
 
+const CELL_SIZE = 64
+const BOARD_SIZE = 10
 const DEV = import.meta.env.DEV
 
+function rotateCell(cells, times) {
+    let result = cells
+    for(let i = 0; i < times; i++){
+        result = result.map(([r, c]) => [-c, r])
+    }
+    const minR = Math.min(...result.map(([r]) => r))
+    const minC = Math.min(...result.map(([, c]) => c))
+    return result.map(([r, c]) => [r - minR, c - minC])
+}
+
+function PieceImage({ name, rotation, size = 48 }) {
+    const src = `/pieces/${name}.png`
+    return (
+        <img src={src} alt={name} style={{
+            width: size,
+            height: size,
+            objectFit: 'contain',
+            transform: `rotate(${rotation * 90}deg)`,
+            transition: 'transform 0.1s ease',
+            userSelect: 'none',
+            pointerEvents: 'none',
+        }} />
+    )
+}
+
 function PieceGrid({ cells, color, cellSize }) {
-    const minR = Math.min(...cells.map(c => c[0]))
-    const minC = Math.min(...cells.map(c => c[1]))
-    const maxR = Math.max(...cells.map(c => c[0]))
-    const maxC = Math.max(...cells.map(c => c[1]))
+    const minR = Math.min(...cells.map(([r]) => r))
+    const minC = Math.min(...cells.map(([, c]) => c))
+    const maxR = Math.max(...cells.map(([r]) => r))
+    const maxC = Math.max(...cells.map(([, c]) => c))
     const rows = maxR - minR + 1
     const cols = maxC - minC + 1
     const filled = new Set(cells.map(([r, c]) => `${r - minR},${c - minC}`))
@@ -38,38 +66,28 @@ function PieceGrid({ cells, color, cellSize }) {
     )
 }
 
-function PieceSlot({ piece, count, color, compact }) {
+function PieceSlot({ piece, count, color, compact, onDragStart, isSelected }) {
     const cellSize = compact ? 7 : 13
+
+    function handleMouseDown(e) {
+        if (e.button !== 0) return
+        e.preventDefault()
+        onDragstart(piece.piece_id)
+    }
+
     return (
-        <div className={`${styles.pieceSlot} ${compact ? styles.pieceSlotCompact : ''}`}>
+        <div
+            className={`${styles.pieceSlot} ${compact ? styles.pieceSlotCompact : ''} ${isSelected ? styles.pieceSlotSelected : ''}`}
+            onMouseDown={handleMouseDown}
+            style={{ cursor: 'grab', opacity: count === 0 ? 0.3 : 1 }}
+        >
             <div className={styles.pieceShape}>
-                <PieceGrid cells={piece.shape} color={color} cellSize={cellSize} />
+                <PieceGrid cells={piece.cells} color={color} cellSize={cellSize} />
             </div>
             <span className={styles.pieceCount} style={{ color }}>×{count}</span>
         </div>
     )
 }
-
-const PLAYER_COLOR = '#C8A96E'
-const OPPONENT_COLOR = '#6E8DC8'
-
-// const PLAYER_PIECES = [
-//     { id: 'mono',      cells: [[0,0]],                                   count: 2 },
-//     { id: 'duo',       cells: [[0,0],[0,1]],                             count: 2 },
-//     { id: 'trio_i',    cells: [[0,0],[0,1],[0,2]],                       count: 1 },
-//     { id: 'trio_l',    cells: [[0,0],[1,0],[1,1]],                       count: 1 },
-//     { id: 'quad_sq',   cells: [[0,0],[0,1],[1,0],[1,1]],                 count: 1 },
-//     { id: 'quad_l',    cells: [[0,0],[1,0],[2,0],[2,1]],                 count: 1 },
-//     { id: 'long',      cells: [[0,0],[0,1],[0,2],[0,3]],                 count: 1 },
-//     { id: 'cathedral', cells: [[0,1],[1,0],[1,1],[1,2],[2,1]],           count: 1 },
-// ]
-
-// const OPPONENT_PIECES = [
-//     { id: 'mono',    cells: [[0,0]],                         count: 1 },
-//     { id: 'duo',     cells: [[0,0],[0,1]],                   count: 1 },
-//     { id: 'trio_l',  cells: [[0,0],[1,0],[1,1]],             count: 2 },
-//     { id: 'quad_sq', cells: [[0,0],[0,1],[1,0],[1,1]],       count: 1 },
-// ]
 
 const SAMPLE_HISTORY = [
     { move: 1,  player: 'Opponent', action: 'Cathedral → D5'    },
@@ -82,10 +100,31 @@ const SAMPLE_HISTORY = [
     { move: 8,  player: 'You',      action: 'Quad-L → I2'       },
 ]
 
-const BOARD_SIZE = 10
+function GameBoard({ boardData, drag, onBoardMouseUp, onBoardMouseMove, onBoardContextMenu, boardRef}) {
+    const previewCells = new Set()
+    const invalidCells = new Set()
 
-function GameBoard() {
-    const [hovered, setHovered] = useState(null)
+    if (drag.active && drag.boardPos) {
+        const { row, col } = drag.boardPos
+        const cells = rotateCell(drag.cells, drag.rotation)
+        cells.forEach(([drag, dc]) => {
+            const r = row + dr
+            const c = col + dc
+            const key = `${r},${c}`
+            if (r < 0 || BOARD_SIZE <= r || c < 0 || BOARD_SIZE <= c) {
+                invalidCells.add(key)
+            } else {
+                const cell = boardData[r * BOARD_SIZE + c]
+                if (cell && cell.piece_id !== -1) {
+                    invalidCells.add(key)
+                } else {
+                    previewCells.add(key)
+                }
+            }
+        })
+    }
+
+    const isValid = invalidCells.size === 0 && previewCells > 0
 
     return (
         <div className={styles.boardWrapper}>
@@ -100,17 +139,40 @@ function GameBoard() {
                         <span key={i}>{i + 1}</span>
                     )}
                 </div>
-                <div className={styles.board}>
+                <div 
+                    ref={boardRef} 
+                    className={styles.board}
+                    onMouseMove={onBoardMouseMove}
+                    onMouseUp={onBoardMouseUp}
+                    onContextMenu={onBoardContextMenu}
+                >    
                     {Array.from({ length: BOARD_SIZE * BOARD_SIZE }, (_, i) => {
                         const r = Math.floor(i / BOARD_SIZE)
                         const c = i % BOARD_SIZE
+                        const key = `${r},${c}`
                         const isLight = (r + c) % 2 === 0
+                        const cell = boardData[i]
+
+                        const isPreview = previewCells.has(key)
+                        const isInvalid = invalidCells.has(key)
+                        const isOccupied = cell && cell.piece_id !== -1
+
+                        let bgColor = isLight ? 'var(--gp-cell-light)' : 'var(--gp-cell-dark)'
+                        if (isOccupied) {
+                            bgColor = cell.color === 1 ? 'rgba(200,169,110,0.8)'   // WHITE
+                                    : cell.color === 2 ? 'rgba(110,141,200,0.8)'   // RED
+                                    : 'rgba(180,180,180,0.6)'                       // NEUTRAL
+                        }
+                        if (isPreview) bgColor = isValid
+                            ? 'rgba(100,200,120,0.55)'
+                            : 'rgba(200,80,80,0.45)'
+                        if (isInvalid) bgColor = 'rgba(200,80,80,0.45)'
+
                         return (
                             <div
                                 key={i}
-                                className={`${styles.cell} ${isLight ? styles.cellLight : styles.cellDark} ${hovered === i ? styles.cellHovered : ''}`}
-                                onMouseEnter={() => setHovered(i)}
-                                onMouseLeave={() => setHovered(null)}
+                                className={styles.cell}
+                                style={{ backgroundColor: bgColor }}
                             />
                         )
                     })}
@@ -173,8 +235,91 @@ export default function GamePage() {
         //TODO
     }
 
+    const [drag, setDrag] = useState({
+        active: false,
+        piece_id: null,
+        cells: [],
+        rotation: 0,
+        boardPos: null,
+    })
+
+    const boardRef = useRef(null)
+
+    function getBoardPos(e) {
+        const rect = boardRef.current?.getBoundingClientRect()
+        if (!rect) return null
+        const x = e.clientX - rect.left
+        const y = e.clientY - rect.top
+        const col = Math.floor(x / CELL_SIZE)
+        const row = Math.floor(y / CELL_SIZE)
+        if (col < 0 || col >= BOARD_SIZE || row < 0 || row >= BOARD_SIZE) return null
+        return { row, col }
+    }
+
+    function handleDragStart(pieceId) {
+        const prefab = PIECE_CATALOG[pieceId]
+        if (!prefab) return
+        setDrag({
+            active: true,
+            piece_id: pieceId,
+            cells: prefab.cells,
+            rotation: 0,
+            boardPos: null,
+        })
+    }
+
+    function handleBoardMouseMove(e) {
+        if (!drag.active) return
+        const pos = getBoardPos(e)
+        setDrag(prev => ({...prev, boardPos: pos}))
+    }
+
+    function handleBoardMouseUp(e) {
+        if (!drag.active || e.button !== 0) return
+        if (drag.boardPos) {
+            const {row, col} = drag.boardPos
+            console.log('Place piece:', {
+                piece_id: drag.piece_id,
+                anchor:   [col, row],
+                rotation: drag.rotation,
+            })
+            //TODO
+        }
+        setDrag({ active: false, piece_id: null, cells: [], rotation: 0, boardPos: null })
+    }
+
+    function handleBoardContextMenu(e) {
+        e.preventDefault()
+        if (!drag.active) return
+        setDrag(prev => ({ ...prev, rotation: (prev.rotation + 1) % 4 }))
+    }
+
+    useEffect(() => {
+        function handleKey(e) {
+            if (e.key === 'Escape') {
+               setDrag({ active: false, piece_id: null, cells: [], rotation: 0, boardPos: null }) 
+            }
+        }
+        window.addEventListener('keydown', handleKey)
+
+        function handleGlobalMouseUp(e) {
+            if (e.button === 0 && drag.active) {
+                setDrag({ active: false, piece_id: null, cells: [], rotation: 0, boardPos: null })
+            }
+        }
+        window.addEventListener('mouseup', handleGlobalMouseUp)
+        
+        return () => {
+            window.removeEventListener('keydown', handleKey)
+            window.removeEventListener('mouseup', handleGlobalMouseUp)
+        }
+    }, [drag.active])
+
+    const PLAYER_COLOR = '#C8A96E'
+    const OPPONENT_COLOR = '#6E8DC8'
+
     return (
-        <div className={styles.page}>
+        <div className={styles.page} style={{ cursor: drag.active ? 'grabbing' : 'default' }}>
             <div className={styles.layout}>
 
                 {/* ── Left column ── */}
@@ -183,7 +328,15 @@ export default function GamePage() {
                         <h3 className={styles.panelTitle}>Opponent's hand</h3>
                         <div className={styles.piecesGridCompact}>
                             {game.oppPieces.map(p => (
-                                <PieceSlot key={p.id} piece={p} count={p.count} color={OPPONENT_COLOR} compact />
+                                <PieceSlot 
+                                    key={p.id}
+                                    piece={p}
+                                    count={p.count}
+                                    color={OPPONENT_COLOR} 
+                                    compact
+                                    isSelected={false}
+                                    onDragstart={() => {}}
+                                />
                             ))}
                         </div>
                     </section>
@@ -192,7 +345,14 @@ export default function GamePage() {
                         <h3 className={styles.panelTitle}>Your hand</h3>
                         <div className={styles.piecesGrid}>
                             {game.playerPieces.map(p => (
-                                <PieceSlot key={p.id} piece={p} count={p.count} color={PLAYER_COLOR} />
+                                <PieceSlot 
+                                    key={p.id}
+                                    piece={p}
+                                    count={p.count}
+                                    color={PLAYER_COLOR}
+                                    isSelected={drag.piece_id === p.piece_id}
+                                    onDragstart={game.isPlayerTurn ? handleDragStart : () => {}}
+                                />
                             ))}
                         </div>
                     </section>
@@ -200,7 +360,19 @@ export default function GamePage() {
 
                 {/* ── Center column ── */}
                 <main className={styles.centerCol}>
-                    <GameBoard />
+                    <GameBoard
+                        boardData={game.board}
+                        drag={drag}
+                        boardRef={boardRef}
+                        onBoardMouseMove={handleBoardMouseMove}
+                        onBoardMouseUp={handleBoardMouseUp}
+                        onBoardContextMenu={handleBoardContextMenu}
+                    />
+                    {drag.active && (
+                        <p style={{ textAlign: 'center', color: '#888', fontSize: 12, marginTop: 8 }} >
+                            RMB or scroll — rotate | ESC — cancel
+                        </p>
+                    )}
                 </main>
 
                 {/* ── Right column ── */}
