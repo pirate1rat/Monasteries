@@ -41,7 +41,7 @@ class Game:
         })
 
         self.board = Board()
-        self.current_turn = PlayerColor.WHITE
+        self.current_turn = PlayerColor.WHITE #player color in current turn
         self.status = GameStatus.IN_PROGRESS
         self.result: GameResult | None = None
         self.draw_offered_by: int | None = None # player_id
@@ -246,11 +246,11 @@ class Game:
         return {
             "game_id":         self.game_id,
             "board":           self.board.to_serializable(),
-            "player_color":      color.value,
+            "player_color":    color.value,
             "current_turn":    self.current_turn.value,
-            "player_pieces":     self.pieces_on_hand[color],
+            "player_pieces":   self.pieces_on_hand[color],
             "opponent_pieces": self.pieces_on_hand[opp_color],
-            "player_time":       self._time_left(color),
+            "player_time":     self._time_left(color),
             "opponent_time":   self._time_left(opp_color),
             "moves":           self.get_moves_string(),
             "status":          self.status.value,

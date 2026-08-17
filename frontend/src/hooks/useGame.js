@@ -52,6 +52,7 @@ export function useGame(gameId) {
         socket.on('disconnect', () => setConnected(false))
 
         socket.on('game_state', (data) => {
+            console.log(data)
             setBoard(buildBoard(data.board))
             setPlayerPieces(buildPieceList(data.player_pieces))
             setOppPieces(buildPieceList(data.opponent_pieces))

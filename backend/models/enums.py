@@ -1,25 +1,25 @@
 from enum import Enum, IntEnum, auto
 
 class PlayerColor(Enum):
-    WHITE = auto()
-    RED = auto()
-    NEUTRAL = auto()
+    WHITE = "white"
+    RED = "red"
+    NEUTRAL = "neutral"
 
 class GameStatus(Enum):
-    WAITING = auto()
-    IN_PROGRESS = auto()
-    FINISHED = auto()
-    ABANDONED = auto()
+    WAITING = "waiting"
+    IN_PROGRESS = "in_progress"
+    FINISHED = "finished"
+    ABANDONED = "abandoned"
 
 class GameResult(Enum):
-    WHITE_WINS = auto()
-    RED_WINS = auto()
-    DRAW = auto()
-    ABANDONED = auto()
+    WHITE_WINS = "white_wins"
+    RED_WINS = "red_wins"
+    DRAW = "draw"
+    ABANDONED = "abandoned"
 
 # White - odd
 # Red - even (except 0)
-class LocationType(IntEnum):
+class PieceType(IntEnum):
     CATHEDRAL = 0
 
     TAVERN_WHITE = auto()

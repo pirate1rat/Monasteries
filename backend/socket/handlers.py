@@ -13,9 +13,6 @@ _lobby_host_sids: dict[str, str] = {}
 def get_current_player_id():
     return current_user.user_id if current_user.is_authenticated else session.get("player_id")
 
-def game_state_payload(game, player_id):
-    return game.get_state_for_player(player_id)
-
 def move_made_payload(game, result):
     white_id = game.players.inverse[PlayerColor.WHITE]
     red_id   = game.players.inverse[PlayerColor.RED]
@@ -53,7 +50,7 @@ def register_handlers(socketio: SocketIO):
 
         room = str(game.game_id)
         game_manager.handle_reconnect(game.game_id, player_id)
-        emit("game_state", game_state_payload(game, player_id))
+        emit("game_state", game.get_state_for_player(player_id))
         emit("opponent reconnected", {}, room=room, include_self=False)
 
     @socketio.on("disconnect")
@@ -149,7 +146,7 @@ def register_handlers(socketio: SocketIO):
             return
 
         join_room(str(game_id))
-        emit("game_state", game_state_payload(game, player_id))
+        emit("game_state", game.get_state_for_player(player_id))
 
     #game
     @socketio.on("make_move")

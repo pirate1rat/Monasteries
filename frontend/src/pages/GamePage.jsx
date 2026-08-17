@@ -66,7 +66,8 @@ function PieceGrid({ cells, color, cellSize }) {
     )
 }
 
-function PieceSlot({ piece, quantity, color, compact, onDragStart = () => {}, isSelected }) {
+function PieceSlot({ piece, quantity, color, compact, onDragStart, isSelected }) {
+    console.log(onDragStart)
     const cellSize = compact ? 7 : 13
 
     function handleMouseDown(e) {
@@ -107,7 +108,7 @@ function GameBoard({ boardData, drag, onBoardMouseUp, onBoardMouseMove, onBoardC
     if (drag.active && drag.boardPos) {
         const { row, col } = drag.boardPos
         const cells = rotateCell(drag.cells, drag.rotation)
-        cells.forEach(([drag, dc]) => {
+        cells.forEach(([dr, dc]) => {
             const r = row + dr
             const c = col + dc
             const key = `${r},${c}`
@@ -257,6 +258,7 @@ export default function GamePage() {
     }
 
     function handleDragStart(pieceId) {
+        console.log(pieceId)
         const prefab = PIECE_CATALOG[pieceId]
         if (!prefab) return
         setDrag({
@@ -266,6 +268,7 @@ export default function GamePage() {
             rotation: 0,
             boardPos: null,
         })
+        console.log("drag start")
     }
 
     function handleBoardMouseMove(e) {
@@ -334,11 +337,12 @@ export default function GamePage() {
                                     quantity={p.quantity}
                                     color={PLAYER_COLOR}
                                     isSelected={drag.piece_id === p.piece_id}
-                                    onDragstart={game.isPlayerTurn ? handleDragStart : undefined}
+                                    onDragStart={game.isPlayerTurn ? handleDragStart : undefined}
                                 />
                             ))}
                         </div>
                     </section>
+                    {console.log(game.isPlayerTurn)}
 
                     <section className={styles.panelSmall}>
                         <h3 className={styles.panelTitle}>Opponent's hand</h3>
@@ -350,6 +354,8 @@ export default function GamePage() {
                                     quantity={p.quantity}
                                     color={OPPONENT_COLOR} 
                                     compact
+                                    isSelected={false}
+                                    onDragStart={() => {}}
                                 />
                             ))}
                         </div>
