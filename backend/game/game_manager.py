@@ -80,7 +80,6 @@ class GameManager:
         if lobby is None: 
             return None
 
-        print(lobby)
         if lobby.host_color == PlayerColor.NEUTRAL:
             host_color = random.choice([PlayerColor.WHITE, PlayerColor.RED])
         else:

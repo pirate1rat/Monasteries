@@ -98,7 +98,7 @@ export function useGame(gameId) {
         })
 
         socket.on('error', (data) => setError(data.message))
-
+        //console.log("pieces of players: ", playerPieces, oppPieces)
         return () => {
             socket.off('game_state')
             socket.off('move_made')

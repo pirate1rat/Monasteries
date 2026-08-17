@@ -28,7 +28,7 @@ def move_made_payload(game, result):
         "white_time": game.white_time_left,
         "red_time": game.red_time_left,
         "opponent_auto_passed": result.opponent_auto_passed,
-        "your_pieces": {
+        "player_pieces": {
             str(pid): qty
             for pid, qty in game.pieces_on_hand[PlayerColor.WHITE].items()
         } if game.players.inverse.get(PlayerColor.WHITE) else {},

@@ -19,7 +19,7 @@ function rotateCell(cells, times) {
 }
 
 function PieceImage({ name, rotation, size = 48 }) {
-    const src = `/pieces/${name}.png`
+    const src = `../assets/pieces/${name}.png`
     return (
         <img src={src} alt={name} style={{
             width: size,
@@ -66,25 +66,25 @@ function PieceGrid({ cells, color, cellSize }) {
     )
 }
 
-function PieceSlot({ piece, count, color, compact, onDragStart, isSelected }) {
+function PieceSlot({ piece, quantity, color, compact, onDragStart = () => {}, isSelected }) {
     const cellSize = compact ? 7 : 13
 
     function handleMouseDown(e) {
         if (e.button !== 0) return
         e.preventDefault()
-        onDragstart(piece.piece_id)
+        onDragStart(piece.piece_id)
     }
 
     return (
         <div
             className={`${styles.pieceSlot} ${compact ? styles.pieceSlotCompact : ''} ${isSelected ? styles.pieceSlotSelected : ''}`}
             onMouseDown={handleMouseDown}
-            style={{ cursor: 'grab', opacity: count === 0 ? 0.3 : 1 }}
+            style={{ cursor: 'grab', opacity: quantity === 0 ? 0.3 : 1 }}
         >
             <div className={styles.pieceShape}>
                 <PieceGrid cells={piece.cells} color={color} cellSize={cellSize} />
             </div>
-            <span className={styles.pieceCount} style={{ color }}>×{count}</span>
+            <span className={styles.pieceCount} style={{ color }}>×{quantity}</span>
         </div>
     )
 }
@@ -324,34 +324,32 @@ export default function GamePage() {
 
                 {/* ── Left column ── */}
                 <aside className={styles.leftCol}>
-                    <section className={styles.panelSmall}>
-                        <h3 className={styles.panelTitle}>Opponent's hand</h3>
-                        <div className={styles.piecesGridCompact}>
-                            {game.oppPieces.map(p => (
+                    <section className={styles.panelLarge}>
+                        <h3 className={styles.panelTitle}>Your hand</h3>
+                        <div className={styles.piecesGrid}>
+                            {game.playerPieces.map((p, i) => (
                                 <PieceSlot 
-                                    key={p.id}
+                                    key={`${p.piece_id}_${i}`}
                                     piece={p}
-                                    count={p.count}
-                                    color={OPPONENT_COLOR} 
-                                    compact
-                                    isSelected={false}
-                                    onDragstart={() => {}}
+                                    quantity={p.quantity}
+                                    color={PLAYER_COLOR}
+                                    isSelected={drag.piece_id === p.piece_id}
+                                    onDragstart={game.isPlayerTurn ? handleDragStart : undefined}
                                 />
                             ))}
                         </div>
                     </section>
 
-                    <section className={styles.panelLarge}>
-                        <h3 className={styles.panelTitle}>Your hand</h3>
-                        <div className={styles.piecesGrid}>
-                            {game.playerPieces.map(p => (
+                    <section className={styles.panelSmall}>
+                        <h3 className={styles.panelTitle}>Opponent's hand</h3>
+                        <div className={styles.piecesGridCompact}>
+                            {game.oppPieces.map((p, i) => (
                                 <PieceSlot 
-                                    key={p.id}
+                                    key={`${p.piece_id}_${i}`}
                                     piece={p}
-                                    count={p.count}
-                                    color={PLAYER_COLOR}
-                                    isSelected={drag.piece_id === p.piece_id}
-                                    onDragstart={game.isPlayerTurn ? handleDragStart : () => {}}
+                                    quantity={p.quantity}
+                                    color={OPPONENT_COLOR} 
+                                    compact
                                 />
                             ))}
                         </div>
