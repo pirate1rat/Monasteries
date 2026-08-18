@@ -67,7 +67,7 @@ function PieceGrid({ cells, color, cellSize }) {
 }
 
 function PieceSlot({ piece, quantity, color, compact, onDragStart, isSelected }) {
-    console.log(onDragStart)
+    // console.log(onDragStart)
     const cellSize = compact ? 7 : 13
 
     function handleMouseDown(e) {
@@ -246,19 +246,24 @@ export default function GamePage() {
 
     const boardRef = useRef(null)
 
-    function getBoardPos(e) {
+    function getBoardPos(e, cells, rotation) {
         const rect = boardRef.current?.getBoundingClientRect()
         if (!rect) return null
         const x = e.clientX - rect.left
         const y = e.clientY - rect.top
-        const col = Math.floor(x / CELL_SIZE)
-        const row = Math.floor(y / CELL_SIZE)
-        if (col < 0 || col >= BOARD_SIZE || row < 0 || row >= BOARD_SIZE) return null
+
+        const rotated = rotateCell(cells, rotation)
+        const maxR = Math.max(...rotated.map(([r]) => r))
+        const maxC = Math.max(...rotated.map(([, c]) => c))
+
+        const col = Math.floor(x / CELL_SIZE) - Math.floor(maxC / 2)
+        const row = Math.floor(y / CELL_SIZE) - Math.floor(maxR / 2)
+
         return { row, col }
     }
 
     function handleDragStart(pieceId) {
-        console.log(pieceId)
+        // console.log(pieceId)
         const prefab = PIECE_CATALOG[pieceId]
         if (!prefab) return
         setDrag({
@@ -268,12 +273,12 @@ export default function GamePage() {
             rotation: 0,
             boardPos: null,
         })
-        console.log("drag start")
+        // console.log("drag start")
     }
 
     function handleBoardMouseMove(e) {
         if (!drag.active) return
-        const pos = getBoardPos(e)
+        const pos = getBoardPos(e, drag.cells, drag.rotation)
         setDrag(prev => ({...prev, boardPos: pos}))
     }
 
@@ -342,7 +347,7 @@ export default function GamePage() {
                             ))}
                         </div>
                     </section>
-                    {console.log(game.isPlayerTurn)}
+                    {/* {console.log(game.isPlayerTurn)} */}
 
                     <section className={styles.panelSmall}>
                         <h3 className={styles.panelTitle}>Opponent's hand</h3>

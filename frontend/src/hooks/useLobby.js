@@ -53,6 +53,7 @@ export function useLobby() {
 
     async function createLobby(color, timeControl) {
         try {
+            color = color === 'random' ? 'neutral' : color //neutral == random on backend
             const res = await api.post('/lobbies/', {color, timeControl})
             const newLobby = res.data.lobby
             socket.emit('watch_lobby', { lobby_id: newLobby.lobby_id })
