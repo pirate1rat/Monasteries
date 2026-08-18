@@ -5,7 +5,7 @@ from bidict import bidict
 from backend.engine.board import Board
 from backend.engine.engine import Engine
 from backend.models.piece import PIECE_CATALOG, PASS_TURN_ID
-from backend.models.enums import PlayerColor, GameStatus, GameResult
+from backend.models.enums import PlayerColor, GameStatus, GameResult, PieceType
 from backend.models.time_control import TimeControl
 from backend.models.move import Move
 from backend.models.move_result import MoveResult
@@ -73,6 +73,8 @@ class Game:
         for piece_id, prefab in PIECE_CATALOG.items():
             if prefab.color != PlayerColor.NEUTRAL:
                 res[prefab.color][piece_id] = prefab.starting_amount
+        #giving cathedral to white player
+        res[PlayerColor.WHITE][PieceType.CATHEDRAL.value] = PIECE_CATALOG[PieceType.CATHEDRAL.value].starting_amount
 
         return res
 

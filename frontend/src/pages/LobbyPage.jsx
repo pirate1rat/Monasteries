@@ -64,7 +64,7 @@ export default function LobbyPage() {
                             {lobbies.filter(Boolean).map(l => (
                                 <tr key={l.lobby_id} className={l.host_id === player?.playerId ? styles.myRow : styles.row}>
                                     <td>{l.host_id === player.playerId ? `You (${player?.username ?? 'Guest'})` : l.host_name}</td>
-                                    <td>{l.host_color}</td>
+                                    <td>{l.host_color === 'neutral' ? 'random' : l.host_color}</td>
                                     <td>
                                     {l.time_control.base / 60} min
                                     {l.time_control.increment > 0 ? ` + ${l.time_control.increment}s` : ''}

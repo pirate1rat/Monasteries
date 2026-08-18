@@ -7,6 +7,14 @@ import styles from './GamePage.module.css'
 const CELL_SIZE = 64
 const BOARD_SIZE = 10
 const DEV = import.meta.env.DEV
+const images = import.meta.glob(
+    '/src/assets/pieces/*.png',
+    {
+        eager: true,
+        query: '?url',
+        import: 'default',
+    }
+);
 
 function rotateCell(cells, times) {
     let result = cells
@@ -19,7 +27,7 @@ function rotateCell(cells, times) {
 }
 
 function PieceImage({ name, rotation, size = 48 }) {
-    const src = `../assets/pieces/${name}.png`
+    const src = images[`/src/assets/pieces/${name}.png`]
     return (
         <img src={src} alt={name} style={{
             width: size,
@@ -66,9 +74,9 @@ function PieceGrid({ cells, color, cellSize }) {
     )
 }
 
-function PieceSlot({ piece, quantity, color, compact, onDragStart, isSelected }) {
+function PieceSlot({ piece, quantity, color, compact, onDragStart, isSelected, style }) {
     // console.log(onDragStart)
-    const cellSize = compact ? 7 : 13
+    const cellSize = compact ? 32 : 48
 
     function handleMouseDown(e) {
         if (e.button !== 0) return
@@ -80,10 +88,11 @@ function PieceSlot({ piece, quantity, color, compact, onDragStart, isSelected })
         <div
             className={`${styles.pieceSlot} ${compact ? styles.pieceSlotCompact : ''} ${isSelected ? styles.pieceSlotSelected : ''}`}
             onMouseDown={handleMouseDown}
-            style={{ cursor: 'grab', opacity: quantity === 0 ? 0.3 : 1 }}
+            style={{ cursor: 'grab', ...style }}
         >
             <div className={styles.pieceShape}>
-                <PieceGrid cells={piece.cells} color={color} cellSize={cellSize} />
+                <PieceImage name={piece.name} rotation={piece.rotation}/>
+                {/* <PieceGrid cells={piece.cells} color={color} cellSize={cellSize}/> */}
             </div>
             <span className={styles.pieceCount} style={{ color }}>×{quantity}</span>
         </div>
@@ -160,9 +169,13 @@ function GameBoard({ boardData, drag, onBoardMouseUp, onBoardMouseMove, onBoardC
 
                         let bgColor = isLight ? 'var(--gp-cell-light)' : 'var(--gp-cell-dark)'
                         if (isOccupied) {
-                            bgColor = cell.color === 1 ? 'rgba(200,169,110,0.8)'   // WHITE
-                                    : cell.color === 2 ? 'rgba(110,141,200,0.8)'   // RED
-                                    : 'rgba(180,180,180,0.6)'                       // NEUTRAL
+                            const isPlayerColor = (game.playerColor === 'WHITE' && cell.color === 1)
+                                                || (game.playerColor === 'RED'   && cell.color === 2)
+                            bgColor = isPlayerColor
+                                ? 'rgba(200,169,110,0.8)'
+                                : cell.color === 3
+                                    ? 'rgba(180,180,180,0.6)'   // NEUTRAL
+                                    : 'rgba(110,141,200,0.8)'
                         }
                         if (isPreview) bgColor = isValid
                             ? 'rgba(100,200,120,0.55)'
@@ -264,6 +277,8 @@ export default function GamePage() {
 
     function handleDragStart(pieceId) {
         // console.log(pieceId)
+        if (game.history.length === 0 && pieceId !== 0) return //forces to play cathedral 1st move
+
         const prefab = PIECE_CATALOG[pieceId]
         if (!prefab) return
         setDrag({
@@ -323,8 +338,8 @@ export default function GamePage() {
         }
     }, [drag.active])
 
-    const PLAYER_COLOR = '#C8A96E'
-    const OPPONENT_COLOR = '#6E8DC8'
+    const PLAYER_COLOR   = game.playerColor === 'WHITE' ? '#C8A96E' : '#6E8DC8'
+    const OPPONENT_COLOR = game.playerColor === 'WHITE' ? '#6E8DC8' : '#C8A96E'
 
     return (
         <div className={styles.page} style={{ cursor: drag.active ? 'grabbing' : 'default' }}>
@@ -335,16 +350,23 @@ export default function GamePage() {
                     <section className={styles.panelLarge}>
                         <h3 className={styles.panelTitle}>Your hand</h3>
                         <div className={styles.piecesGrid}>
-                            {game.playerPieces.map((p, i) => (
-                                <PieceSlot 
-                                    key={`${p.piece_id}_${i}`}
-                                    piece={p}
-                                    quantity={p.quantity}
-                                    color={PLAYER_COLOR}
-                                    isSelected={drag.piece_id === p.piece_id}
-                                    onDragStart={game.isPlayerTurn ? handleDragStart : undefined}
-                                />
-                            ))}
+                            {game.playerPieces.map((p, i) => {
+                                const isFirstMove = game.history.length === 0
+                                const isCathedral = p.piece_id === 0
+                                const disabled = (isFirstMove && !isCathedral && game.isPlayerTurn)
+
+                                return (
+                                    <PieceSlot 
+                                        key={`${p.piece_id}_${i}`}
+                                        piece={p}
+                                        quantity={p.quantity}
+                                        color={PLAYER_COLOR}
+                                        isSelected={drag.piece_id === p.piece_id}
+                                        onDragStart={game.isPlayerTurn && !disabled ? handleDragStart : undefined}
+                                        style={{ opacity: disabled ? 0.2 : 1, pointerEvents: disabled ? 'none' : 'auto' }}
+                                    />
+                                )
+                            })}
                         </div>
                     </section>
                     {/* {console.log(game.isPlayerTurn)} */}
