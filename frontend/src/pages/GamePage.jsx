@@ -6,6 +6,10 @@ import styles from './GamePage.module.css'
 
 import { PiecePanel } from '../components/PiecePanel'
 import { GameBoard } from '../components/GameBoard'
+import { GameTimer }    from '../components/GameTimer'
+import { MoveHistory }  from '../components/MoveHistory'
+import { GameControls } from '../components/GameControls'
+import { WinnerPopup }  from '../components/WinnerPopup'
 import { rotateCell } from '../utils/pieceUtils'
 
 const CELL_SIZE = 64
@@ -30,42 +34,6 @@ const SAMPLE_HISTORY = [
     { move: 7,  player: 'Opponent', action: 'Trio-I → F4–F6'    },
     { move: 8,  player: 'You',      action: 'Quad-L → I2'       },
 ]
-
-function Timer({ time, label, active }) {
-    return (
-        <div className={`${styles.timer} ${active ? styles.timerActive : ''}`}>
-            <span className={styles.timerLabel}>{label}</span>
-            <span className={styles.timerValue}>{time}</span>
-        </div>
-    )
-}
-
-function MoveHistory({ entries }) {
-    return (
-        <div className={styles.historyList}>
-            {entries.map((h) => (
-                <div key={h.move} className={`${styles.historyEntry} ${h.player === 'You' ? styles.historyYou : styles.historyOpponent}`}>
-                    <span className={styles.historyIndex}>{h.move}.</span>
-                    <span className={styles.historyPlayer}>{h.player}</span>
-                    <span className={styles.historyAction}>{h.action}</span>
-                </div>
-            ))}
-        </div>
-    )
-}
-
-function WinnerPopup({ winner, onClose }) {
-    return (
-        <div className={styles.overlay} onClick={onClose}>
-            <div className={styles.popup} onClick={e => e.stopPropagation()}>
-                <div className={styles.popupGlow} />
-                <p className={styles.popupEyebrow}>Game over</p>
-                <h2 className={styles.popupTitle}>{winner} wins</h2>
-                <button className={styles.popupClose} onClick={onClose}>Continue</button>
-            </div>
-        </div>
-    )
-}
 
 export default function GamePage() {
     const { gameId } = useParams()
@@ -235,29 +203,31 @@ export default function GamePage() {
 
                 {/* ── Right column ── */}
                 <aside className={styles.rightCol}>
-                    <Timer time={opponentTime} label={opponentName} active={!game.isPlayerTurn} />
+                    <GameTimer 
+                        time={opponentTime}
+                        label={opponentName}
+                        active={!game.isPlayerTurn} 
+                    />
 
-                    <section className={styles.historyPanel}>
-                        <h3 className={styles.panelTitle}>Move history</h3>
-                        <MoveHistory entries={SAMPLE_HISTORY} />
-                    </section>
+                    <MoveHistory
+                        entries={SAMPLE_HISTORY}
+                        playerColor={game.playerColor}
+                    />
 
-                    <Timer time={playerTime} label={playerName} active={game.isPlayerTurn} />
+                    <GameTimer
+                        time={game.playerTime}
+                        label="You"
+                        active={game.isPlayerTurn}
+                    />
 
-                    <div className={styles.actionButtons}>
-                        {!gameOver ? (
-                            <>
-                                <button className={styles.btnDraw} onClick={() => game.proposeDraw()}>Offer Draw</button>
-                                <button className={styles.btnSurrender} onClick={() => game.resign()}>Surrender</button>
-                            </>
-                        ) : (
-                            <>
-                                <button className={styles.btnAction}>Rematch</button>
-                                <button className={styles.btnAction}>New Game</button>
-                                <button className={styles.btnAnalyze}>Analyze</button>
-                            </>
-                        )}
-                    </div>
+                    <GameControls
+                        gameOver={gameOver}
+                        onProposeDraw={game.proposeDraw}
+                        onResign={game.resign}
+                        onRematch={() => {}}
+                        onNewGame={() => {}}
+                        onAnalyze={() => {}}
+                    />
                 </aside>
             </div>
 

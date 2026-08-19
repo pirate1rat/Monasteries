@@ -1,0 +1,66 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 12, 20, 0.75);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.popup {
+    position: relative;
+    background: rgba(26, 31, 46, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 40px 52px;
+    text-align: center;
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+}
+
+.popupGlow {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(200, 169, 110, 0.25) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.popupEyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gp-text-muted);
+    margin: 0 0 8px 0;
+}
+
+.popupTitle {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--gp-amber);
+    margin: 0 0 28px 0;
+    letter-spacing: -0.01em;
+}
+
+.popupClose {
+    background: var(--gp-amber);
+    color: #12151E;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 32px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.popupClose:hover {
+    background: #D4B87E;
+}

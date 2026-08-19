@@ -1,0 +1,38 @@
+.timer {
+    background: rgba(20, 20, 20, 0.55);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--gp-border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.timerActive {
+    border-color: var(--gp-amber-dim);
+    box-shadow: 0 0 0 1px var(--gp-amber-dim), inset 0 0 20px rgba(200, 169, 110, 0.06);
+}
+
+.timerLabel {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gp-text-muted);
+}
+
+.timerActive .timerLabel {
+    color: var(--gp-amber);
+}
+
+.timerValue {
+    font-family: 'JetBrains Mono', 'Fira Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--gp-text);
+}
+
+.timerActive .timerValue {
+    color: var(--gp-amber);
+}

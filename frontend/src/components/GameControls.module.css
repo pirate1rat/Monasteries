@@ -1,0 +1,45 @@
+.actionButtons {
+    display: flex;
+    gap: 8px;
+}
+
+.actionButtons button {
+    flex: 1;
+    padding: 10px 6px;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+}
+
+.actionButtons button:active {
+    transform: scale(0.97);
+}
+
+.btnDraw {
+    background: var(--gp-green);
+    color: #fff;
+}
+.btnDraw:hover { background: var(--gp-green-hover); }
+
+.btnSurrender {
+    background: var(--gp-red);
+    color: #fff;
+}
+.btnSurrender:hover { background: var(--gp-red-hover); }
+
+.btnAction {
+    background: rgba(32, 38, 54, 0.85);
+    color: var(--gp-text);
+    border: 1px solid var(--gp-border) !important;
+}
+.btnAction:hover { background: var(--gp-border); }
+
+.btnAnalyze {
+    background: var(--gp-amber-dim);
+    color: #fff;
+}
+.btnAnalyze:hover { background: var(--gp-amber); color: #12151E; }
