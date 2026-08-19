@@ -1,0 +1,59 @@
+.boardWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    user-select: none;
+}
+
+.boardLabelsTop {
+    display: flex;
+    gap: 0;
+    padding-left: 22px;
+}
+
+.boardLabelsTop span,
+.boardLabelsLeft span {
+    font-family: 'JetBrains Mono', 'Fira Mono', monospace;
+    font-size: 10px;
+    color: var(--gp-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.boardLabelsTop span {
+    width: 64px;
+    height: 18px;
+}
+
+.boardRow {
+    display: flex;
+    gap: 4px;
+}
+
+.boardLabelsLeft {
+    display: flex;
+    flex-direction: column;
+}
+
+.boardLabelsLeft span {
+    width: 18px;
+    height: 64px;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(10, 64px);
+    grid-template-rows: repeat(10, 64px);
+    gap: 2px;
+    border: 2px solid var(--gp-border);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.cell {
+    cursor: pointer;
+    transition: background-color 0.1s;
+}
