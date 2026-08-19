@@ -1,0 +1,70 @@
+.panelSmall,
+.panelLarge {
+    background: rgba(20, 20, 20, 0.55);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--gp-border);
+    border-radius: 10px;
+    padding: 14px;
+}
+
+.panelLarge {
+    flex: 1;
+}
+
+.panelTitle {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gp-text-muted);
+    margin: 0 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--gp-border);
+}
+
+.piecesGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.piecesGridCompact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pieceSlot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 6px;
+    padding: 2px 4px;
+}
+
+.pieceSlot:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.pieceSlotCompact {
+    gap: 5px;
+}
+
+.pieceSlotSelected {
+    outline: 1px solid rgba(200, 169, 110, 0.6);
+    background: rgba(200, 169, 110, 0.08);
+}
+
+.pieceShape {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+}
+
+.pieceCount {
+    font-family: 'JetBrains Mono', 'Fira Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    min-width: 24px;
+}
