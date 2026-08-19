@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useGame } from '../hooks/useGame'
 import { useParams } from 'react-router-dom'
-import { PIECE_CATALOG } from '../data/pieceCatalog'
 import styles from './GamePage.module.css'
 
 import { PiecePanel } from '../components/PiecePanel'
@@ -11,9 +10,11 @@ import { MoveHistory }  from '../components/MoveHistory'
 import { GameControls } from '../components/GameControls'
 import { WinnerPopup }  from '../components/WinnerPopup'
 import { rotateCell } from '../utils/pieceUtils'
+import { PIECE_CATALOG } from '../data/pieceCatalog'
 
 const CELL_SIZE = 64
 const BOARD_SIZE = 10
+
 const DEV = import.meta.env.DEV
 const images = import.meta.glob(
     '/src/assets/pieces/*.png',
@@ -22,7 +23,14 @@ const images = import.meta.glob(
         query: '?url',
         import: 'default',
     }
-);
+)
+const EMPTY_DRAG = { 
+    active: false,
+    piece_id: null,
+    cells: [], 
+    rotation: 0,
+    boardPos: null
+}
 
 const SAMPLE_HISTORY = [
     { move: 1,  player: 'Opponent', action: 'Cathedral → D5'    },
@@ -35,32 +43,28 @@ const SAMPLE_HISTORY = [
     { move: 8,  player: 'You',      action: 'Quad-L → I2'       },
 ]
 
+const playerName   = 'Player'
+const opponentName = 'Opponent'
+const playerTime   = '08:42'
+const opponentTime = '09:15'
+
 export default function GamePage() {
     const { gameId } = useParams()
     const game = useGame(gameId)
 
-    const [gameOver, setGameOver] = useState(false)
-    const [winner, setWinner] = useState(null)
+    const [drag, setDrag] = useState(EMPTY_DRAG)
     const [showPopup, setShowPopup] = useState(false)
-
-    const playerName   = 'Player'
-    const opponentName = 'Opponent'
-    const playerTime   = '08:42'
-    const opponentTime = '09:15'
-
-    function handleOfferDraw() {
-        //TODO
-    }
-
-    const [drag, setDrag] = useState({
-        active: false,
-        piece_id: null,
-        cells: [],
-        rotation: 0,
-        boardPos: null,
-    })
+    
+    const gameOver = game.status === 'finished'
+    const winner = game.result
 
     const boardRef = useRef(null)
+
+    useEffect(() => {
+        if (gameOver) setShowPopup(true)
+    }, [gameOver])
+
+    // ------ Drag helpers
 
     function getBoardPos(e, cells, rotation) {
         const rect = boardRef.current?.getBoundingClientRect()
@@ -96,8 +100,7 @@ export default function GamePage() {
 
     function handleBoardMouseMove(e) {
         if (!drag.active) return
-        const pos = getBoardPos(e, drag.cells, drag.rotation)
-        setDrag(prev => ({...prev, boardPos: pos}))
+        setDrag(prev => ({ ...prev, boardPos: getBoardPos(e, prev.cells, prev.rotation) }))
     }
 
     function handleBoardMouseUp(e) {
@@ -115,7 +118,7 @@ export default function GamePage() {
             const isOnBoard = cells.every(([dr, dc]) => {
                 const r = row + dr
                 const c = col + dc
-                return 0 <= r && r <BOARD_SIZE && 0 <= c && c < BOARD_SIZE
+                return 0 <= r && r < BOARD_SIZE && 0 <= c && c < BOARD_SIZE
             })
 
             if (isOnBoard) {
@@ -123,7 +126,7 @@ export default function GamePage() {
             }
 
         }
-        setDrag({ active: false, piece_id: null, cells: [], rotation: 0, boardPos: null })
+        setDrag(EMPTY_DRAG)
     }
 
     function handleBoardContextMenu(e) {
@@ -133,18 +136,9 @@ export default function GamePage() {
     }
 
     useEffect(() => {
-        function handleKey(e) {
-            if (e.key === 'Escape') {
-               setDrag({ active: false, piece_id: null, cells: [], rotation: 0, boardPos: null }) 
-            }
-        }
+        const handleKey = (e) => { if (e.key === 'Escape') setDrag(EMPTY_DRAG) }
+        const handleGlobalMouseUp  = (e) => { if (e.button === 0 && drag.active) setDrag(EMPTY_DRAG) }
         window.addEventListener('keydown', handleKey)
-
-        function handleGlobalMouseUp(e) {
-            if (e.button === 0 && drag.active) {
-                setDrag({ active: false, piece_id: null, cells: [], rotation: 0, boardPos: null })
-            }
-        }
         window.addEventListener('mouseup', handleGlobalMouseUp)
         
         return () => {
