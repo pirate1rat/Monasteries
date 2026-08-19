@@ -10,6 +10,11 @@ from backend.models.enums import PlayerColor, GameStatus
 
 _lobby_host_sids: dict[str, str] = {}
 
+OPPOSITE: dict[PlayerColor, PlayerColor] = {
+    PlayerColor.WHITE: PlayerColor.RED,
+    PlayerColor.RED: PlayerColor.WHITE,
+}
+
 def get_current_player_id():
     return current_user.user_id if current_user.is_authenticated else session.get("player_id")
 
@@ -183,14 +188,22 @@ def register_handlers(socketio: SocketIO):
             game_manager.end_game(game_id)
         else:
             emit("move_made", {
-                "token_id": result.token_id,
-                "captured": result.captured.token_id if result.captured else None,
-                "territories_gained": list(result.territories_gained),
                 "board": game.board.to_serializable(),
                 "current_turn": game.current_turn.value,
                 "white_time": game.white_time_left,
                 "red_time": game.red_time_left,
+                "token_id": result.token_id,
+                "captured": result.captured.token_id if result.captured else None,
+                "territories_gained": list(result.territories_gained),
                 "opponent_auto_passed": result.opponent_auto_passed,
+                "your_pieces": {
+                    str(pid): qty
+                    for pid, qty in game.pieces_on_hand[game._color(player_id)].items()
+                },
+                "opponent_pieces": {
+                    str(pid): qty
+                    for pid, qty in game.pieces_on_hand[OPPOSITE[game._color(player_id)]].items()
+                },
         }, room=room)
 
     @socketio.on("resign")

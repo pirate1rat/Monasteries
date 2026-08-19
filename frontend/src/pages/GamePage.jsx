@@ -301,12 +301,24 @@ export default function GamePage() {
         if (!drag.active || e.button !== 0) return
         if (drag.boardPos) {
             const {row, col} = drag.boardPos
+            const cells = rotateCell(drag.cells, drag.rotation)
+            
             console.log('Place piece:', {
                 piece_id: drag.piece_id,
                 anchor:   [col, row],
                 rotation: drag.rotation,
             })
-            //TODO
+
+            const isOnBoard = cells.every(([dr, dc]) => {
+                const r = row + dr
+                const c = col + dc
+                return 0 <= r && r <BOARD_SIZE && 0 <= c && c < BOARD_SIZE
+            })
+
+            if (isOnBoard) {
+                game.makeMove(drag.piece_id, [col, row], drag.rotation)
+            }
+
         }
         setDrag({ active: false, piece_id: null, cells: [], rotation: 0, boardPos: null })
     }

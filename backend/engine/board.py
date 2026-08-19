@@ -50,6 +50,9 @@ class Board:
         if color == PlayerColor.NEUTRAL:
             return token_id
 
+        captured = None
+        tiles = set()
+
         for dx, dy in offsets:
             cx, cy = ax + dx, ay + dy
             for ndx, ndy in NEIGHBOR_OFFSETS:
@@ -70,7 +73,6 @@ class Board:
                 self.territories[OPPOSITE[color]] -= tiles
                 self.territories[color] |= tiles
 
-                captured = None
                 if len(interior) == 1 and interior[0].color == OPPOSITE[color]:
                     removed = interior[0]
                     freed_cells = {

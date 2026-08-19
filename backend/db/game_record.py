@@ -14,7 +14,7 @@ class GameRecord(db.Model):
 
     created_at = db.Column(db.DateTime, nullable=False)
     started_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.datetime.now())
-    finished_at = db.Column(db.DateTime, nullable=False)
+    finished_at = db.Column(db.DateTime, nullable=True)
 
     def __repr__(self):
         return f"<Game {self.game_id} white: {self.white_user_id}, red: {self.red_user_id}, created at: {self.created_at}>"

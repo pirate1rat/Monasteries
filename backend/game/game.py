@@ -157,7 +157,7 @@ class Game:
             save_game(self)
             return MoveResult(token_id=PASS_TURN_ID, captured=None, territories_gained=set())
 
-        result: MoveResult = self.board.place_piece(placement.piece_id, placement.anchor, placement.rotation, color)
+        result: MoveResult = self.board.place_piece(placement)
         if result is None:
             save_game(self)
             return None

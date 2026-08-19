@@ -56,9 +56,9 @@ def save_game(game: "Game"):
         new_game_record = GameRecord(
             white_user_id=white_id,
             red_user_id=red_id,
-            status=game.status,
+            status=game.status.value,
             result=game.result,
-            time_control=game.time_control,
+            time_control=game.time_control.to_serializable(),
             moves=game.get_moves_string(),
             created_at=game.started_at,
             finished_at=None,

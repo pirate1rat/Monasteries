@@ -67,14 +67,18 @@ export function useGame(gameId) {
         socket.on('move_made', (data) => {
             setBoard(buildBoard(data.board))
             setCurrentTurn(data.current_turn)
-            setPlayerTime(data.player_time)
-            setOppTime(data.opponent_time)
+
+            const playerTime = playerColor === 'WHITE' ? data.white_time : data.red_time
+            const opponentTime = playerColor === 'RED' ? data.red_time : data.red_time
+            setPlayerTime(playerTime)
+            setOppTime(opponentTime)
+
             setPlayerPieces(buildPieceList(data.player_pieces))
             setOppPieces(buildPieceList(data.opponent_pieces))
             setHistory(prev => [...prev, {
                 move: prev.length + 1,
                 player: data.current_turn,
-                action: data.move_notation
+                action: data.move_notation ?? `piece ${data.token_id}`
             }])
             setSelectedPiece(null)
             setSelectedRotation(0)
