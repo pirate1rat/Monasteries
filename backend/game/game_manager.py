@@ -89,7 +89,6 @@ class GameManager:
             white_id, red_id = lobby.host_id, player_id
         else:
             white_id, red_id = player_id, lobby.host_id
-        print("###\n\n\n\n#####", lobby.host_color, white_id, red_id)
 
         game = self.create_game(white_id, red_id, lobby.time_control)
         self.active_games[game.game_id] = game

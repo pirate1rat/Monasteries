@@ -26,7 +26,7 @@ export function useGame(gameId) {
     const [board, setBoard] = useState(Array(100).fill(null))
     const [playerPieces, setPlayerPieces] = useState([])
     const [oppPieces, setOppPieces] = useState([])
-    const [playerColor, setPlayerColor] = useState(null)   // WHITE/RED
+    const [playerColor, setPlayerColor] = useState(null)   // 'white'/'red'
     const [currentTurn, setCurrentTurn] = useState(null)
     const [playerTime, setPlayerTime] = useState(null)
     const [oppTime, setOppTime] = useState(null)
@@ -44,6 +44,19 @@ export function useGame(gameId) {
     const [selectedRotation, setSelectedRotation] = useState(0)
 
     const gameIdRef = useRef(gameId)
+    const playerColorRef = useRef(null)
+
+    function updatePieces(whitePieces, redPieces, color) {
+        const myColor = color ?? playerColorRef.current
+        if (myColor === 'white') {
+            setPlayerPieces(buildPieceList(whitePieces))
+            setOppPieces(buildPieceList(redPieces))
+        } else {
+            setPlayerPieces(buildPieceList(redPieces))
+            setOppPieces(buildPieceList(whitePieces))
+        }
+        console.log("PO UBDATE: ",playerPieces, oppPieces)
+    }
 
     useEffect(() => {
         socket.emit('join_game', { game_id: gameId })
@@ -54,27 +67,26 @@ export function useGame(gameId) {
         socket.on('game_state', (data) => {
             console.log(data)
             setBoard(buildBoard(data.board))
-            setPlayerPieces(buildPieceList(data.player_pieces))
-            setOppPieces(buildPieceList(data.opponent_pieces))
             setPlayerColor(data.player_color)
+            playerColorRef.current = data.player_color
             setCurrentTurn(data.current_turn)
             setPlayerTime(data.player_time)
             setOppTime(data.opponent_time)
             setStatus(data.status)
             setResult(data.result)
+            updatePieces(data.white_pieces, data.red_pieces, data.player_color)
         })
 
         socket.on('move_made', (data) => {
             setBoard(buildBoard(data.board))
             setCurrentTurn(data.current_turn)
+            
+            const myColor = playerColorRef.current
+            setPlayerTime(myColor === 'white' ? data.white_time : data.red_time)
+            setOppTime(myColor === 'red' ? data.red_time : data.white_time)
+            
+            updatePieces(data.white_pieces, data.red_pieces, null)
 
-            const playerTime = playerColor === 'WHITE' ? data.white_time : data.red_time
-            const opponentTime = playerColor === 'RED' ? data.red_time : data.red_time
-            setPlayerTime(playerTime)
-            setOppTime(opponentTime)
-
-            setPlayerPieces(buildPieceList(data.player_pieces))
-            setOppPieces(buildPieceList(data.opponent_pieces))
             setHistory(prev => [...prev, {
                 move: prev.length + 1,
                 player: data.current_turn,

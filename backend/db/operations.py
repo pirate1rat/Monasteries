@@ -48,6 +48,7 @@ def save_game(game: "Game"):
         return pid if pid > 0 else None
 
     white_id = valid_user_id(game.players.inverse[PlayerColor.WHITE])
+    print(game.players.inverse[PlayerColor.RED])
     red_id = valid_user_id(game.players.inverse[PlayerColor.RED])
 
     game_record: GameRecord = db.session.get(GameRecord, game.game_id)

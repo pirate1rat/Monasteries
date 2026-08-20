@@ -28,13 +28,13 @@ function PieceImage({ name, rotation, size = 48 }) {
 }
 
 function PieceGrid({ cells, color, cellSize = 16 }) {
-    const minR = Math.min(...cells.map(([r]) => r))
-    const minC = Math.min(...cells.map(([, c]) => c))
-    const maxR = Math.max(...cells.map(([r]) => r))
-    const maxC = Math.max(...cells.map(([, c]) => c))
-    const rows = maxR - minR + 1
-    const cols = maxC - minC + 1
-    const filled = new Set(cells.map(([r, c]) => `${r - minR},${c - minC}`))
+    const minX = Math.min(...cells.map(([x]) => x))
+    const minY = Math.min(...cells.map(([, y]) => y))
+    const maxX = Math.max(...cells.map(([x]) => x))
+    const maxY = Math.max(...cells.map(([, y]) => y))
+    const rows = maxY - minY + 1
+    const cols = maxX - minX + 1
+    const filled = new Set(cells.map(([x, y]) => `${y - minY},${x - minX}`))
 
     return (
         <div style={{
@@ -66,7 +66,7 @@ export function PieceSlot({ piece, quantity, color, compact, onDragStart, isSele
     function handleMouseDown(e) {
         if (e.button !== 0) return
         e.preventDefault()
-        onDragStart(piece.piece_id)
+        onDragStart?.(piece.piece_id)
     }
 
     return (

@@ -8,7 +8,7 @@ export function GameBoard({ boardData, drag, onBoardMouseUp, onBoardMouseMove, o
     if (drag.active && drag.boardPos) {
         const { row, col } = drag.boardPos
         const cells = rotateCell(drag.cells, drag.rotation)
-        cells.forEach(([dr, dc]) => {
+        cells.forEach(([dc, dr]) => {
             const r = row + dr
             const c = col + dc
             const key = `${r},${c}`
@@ -60,13 +60,23 @@ export function GameBoard({ boardData, drag, onBoardMouseUp, onBoardMouseMove, o
 
                         let bgColor = isLight ? 'var(--gp-cell-light)' : 'var(--gp-cell-dark)'
                         if (isOccupied) {
-                            const isPlayerColor = (playerColor === 'white' && cell.color === 1)
-                                                || (playerColor === 'red'   && cell.color === 2)
-                            bgColor = isPlayerColor
-                                ? 'rgba(200,169,110,0.8)'
-                                : cell.color === 3
-                                    ? 'rgba(180,180,180,0.6)'   // NEUTRAL
-                                    : 'rgba(110,141,200,0.8)'
+                            switch (cell.color) {
+                                case 'white':
+                                    bgColor = 'rgba(200,169,110,0.8)'
+                                    break
+                                case 'red':
+                                    bgColor = 'rgba(110,141,200,0.8)'
+                                    break
+                                case 'neutral':
+                                    bgColor = 'rgba(180,180,180,0.6)'
+                                    break
+                            }
+                            // const isPlayerColor = cell.color === playerColor
+                            // bgColor = isPlayerColor
+                            //     ? 'rgba(200,169,110,0.8)'
+                            //     : cell.color === 'neutral'
+                            //         ? 'rgba(180,180,180,0.6)'
+                            //         : 'rgba(110,141,200,0.8)'
                         }
                         if (isPreview) bgColor = isValid
                             ? 'rgba(100,200,120,0.55)'

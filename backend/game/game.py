@@ -162,11 +162,11 @@ class Game:
             save_game(self)
             return None
 
-        hand = self.pieces_on_hand.get(color, {})
-        if placement.piece_id in hand:
-            hand[placement.piece_id] -= 1
-            if hand[placement.piece_id] == 0:
-                del hand[placement.piece_id]
+        print("##############\n\n\n\n\n############", placement.piece_id, self.pieces_on_hand.get(color, {}))
+        if placement.piece_id in self.pieces_on_hand.get(color, {}):
+            self.pieces_on_hand[color][placement.piece_id] -= 1
+            if self.pieces_on_hand[color][placement.piece_id] == 0:
+                del self.pieces_on_hand[color][placement.piece_id]
         
         self._tick_clock(color)
         self.moves.append(move)
@@ -250,11 +250,10 @@ class Game:
             "board":           self.board.to_serializable(),
             "player_color":    color.value,
             "current_turn":    self.current_turn.value,
-            "player_pieces":   self.pieces_on_hand[color],
-            "opponent_pieces": self.pieces_on_hand[opp_color],
+            "white_pieces":    self.pieces_on_hand[PlayerColor.WHITE],
+            "red_pieces":      self.pieces_on_hand[PlayerColor.RED],
             "player_time":     self._time_left(color),
             "opponent_time":   self._time_left(opp_color),
-            "moves":           self.get_moves_string(),
             "status":          self.status.value,
             "result":          self.result.value if self.result else None,
             "draw_offered_by": self.draw_offered_by,

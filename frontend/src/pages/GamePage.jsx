@@ -69,15 +69,16 @@ export default function GamePage() {
     function getBoardPos(e, cells, rotation) {
         const rect = boardRef.current?.getBoundingClientRect()
         if (!rect) return null
-        const x = e.clientX - rect.left
-        const y = e.clientY - rect.top
 
         const rotated = rotateCell(cells, rotation)
-        const maxR = Math.max(...rotated.map(([r]) => r))
-        const maxC = Math.max(...rotated.map(([, c]) => c))
+        const maxX = Math.max(...rotated.map(([x]) => x))
+        const maxY = Math.max(...rotated.map(([, y]) => y))
 
-        const col = Math.floor(x / CELL_SIZE) - Math.floor(maxC / 2)
-        const row = Math.floor(y / CELL_SIZE) - Math.floor(maxR / 2)
+        const rawCol = (e.clientX - rect.left) / CELL_SIZE
+        const rawRow = (e.clientY - rect.top)  / CELL_SIZE
+
+        const col = Math.floor(rawCol - maxX / 2)
+        const row = Math.floor(rawRow - maxY / 2)
 
         return { row, col }
     }
@@ -108,13 +109,14 @@ export default function GamePage() {
         if (drag.boardPos) {
             const {row, col} = drag.boardPos
             const cells = rotateCell(drag.cells, drag.rotation)
-            
+
             console.log('Place piece:', {
                 piece_id: drag.piece_id,
                 anchor:   [col, row],
                 rotation: drag.rotation,
+                name: PIECE_CATALOG[drag.piece_id].name
             })
-
+        
             const isOnBoard = cells.every(([dr, dc]) => {
                 const r = row + dr
                 const c = col + dc
@@ -150,6 +152,7 @@ export default function GamePage() {
     const PLAYER_COLOR = game.playerColor === 'white' ? '#C8A96E' : '#6E8DC8'
     const OPPONENT_COLOR = game.playerColor === 'white' ? '#6E8DC8' : '#C8A96E'
 
+    {console.log(game)}
     return (
         <div className={styles.page} style={{ cursor: drag.active ? 'grabbing' : 'default' }}>
             <div className={styles.layout}>
@@ -162,7 +165,7 @@ export default function GamePage() {
                         color={PLAYER_COLOR}
                         compact
                         dragPieceId={drag.piece_id}
-                        onDragStart={game.isPlayerTurn ? handleDragStart : undefined}
+                        onDragStart={game.isPlayerTurn ? handleDragStart : () => {}}
                         isFirstMove={game.history.length === 0 && game.isPlayerTurn}
                     />
 
