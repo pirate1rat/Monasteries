@@ -98,7 +98,7 @@ export const PIECE_CATALOG = {
 },
 
 14: {
-    cells: [[0, 0], [1, 1], [0, 1], [1, 0]],
+    cells: [[0, 0], [1, 1], [0, 1], [-1, 0]],
     size: 4,
     color: 'red',
     name: "abbey_red",

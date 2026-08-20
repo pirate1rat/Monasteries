@@ -14,12 +14,14 @@ OPPOSITE = {
 }
 
 class Engine:
-    @staticmethod
     def get_rotated_piece(piece_id: int, rotation: int) -> list[tuple[int, int]]:
         shape = list(PIECE_CATALOG[piece_id].shape)
-
         for _ in range(rotation % 4):
             shape = [(-y, x) for x, y in shape]
+        
+        min_x = min(x for x, y in shape)
+        min_y = min(y for x, y in shape)
+        shape = [(x - min_x, y - min_y) for x, y in shape]
         
         return shape
 

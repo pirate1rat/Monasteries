@@ -71,12 +71,6 @@ export function GameBoard({ boardData, drag, onBoardMouseUp, onBoardMouseMove, o
                                     bgColor = 'rgba(180,180,180,0.6)'
                                     break
                             }
-                            // const isPlayerColor = cell.color === playerColor
-                            // bgColor = isPlayerColor
-                            //     ? 'rgba(200,169,110,0.8)'
-                            //     : cell.color === 'neutral'
-                            //         ? 'rgba(180,180,180,0.6)'
-                            //         : 'rgba(110,141,200,0.8)'
                         }
                         if (isPreview) bgColor = isValid
                             ? 'rgba(100,200,120,0.55)'

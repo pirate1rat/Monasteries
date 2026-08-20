@@ -101,7 +101,7 @@ PIECE_CATALOG: dict[int, PiecePrefab] = {
     ),
 
     14 : PiecePrefab(
-        ((0, 0), (1, 1), (0, 1), (1, 0)),
+        ((0, 0), (1, 1), (0, 1), (-1, 0)),
         4, PlayerColor.RED, "Abbey_red", 1
     ),
 
