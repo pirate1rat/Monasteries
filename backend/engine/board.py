@@ -23,11 +23,12 @@ class Board:
         self.placements: dict[str, Placement] = {}
         self._next_token: int = 0
 
-    def place_piece(self, placement: Placement) -> str | None:
+    def place_piece(self, placement: Placement) -> MoveResult | None:
         """
         Places a piece on the board.
         Returns the token_id of the new piece, or None if the move is illegal.
         """
+        print("????????????????????\n\n\n\n\n\n\n", placement)
 
         piece_id: int = placement.piece_id
         anchor: tuple[int, int] = placement.anchor
@@ -48,7 +49,11 @@ class Board:
         self.placements[token_id] = Placement(token_id, piece_id, anchor, rotation, color)
 
         if color == PlayerColor.NEUTRAL:
-            return token_id
+            return MoveResult(
+                token_id=token_id,
+                captured=None,
+                territories_gained=set()
+            )
 
         captured = None
         tiles = set()

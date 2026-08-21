@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from backend.models.enums import PlayerColor
 
-@dataclass(frozen=True)
+@dataclass()
 class Placement:
     token_id: str
     piece_id: int

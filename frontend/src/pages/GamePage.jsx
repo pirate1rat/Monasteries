@@ -66,19 +66,12 @@ export default function GamePage() {
 
     // ------ Drag helpers
 
-    function getBoardPos(e, cells, rotation) {
+    function getBoardPos(e) {
         const rect = boardRef.current?.getBoundingClientRect()
         if (!rect) return null
 
-        const rotated = rotateCell(cells, rotation)
-        const maxX = Math.max(...rotated.map(([x]) => x))
-        const maxY = Math.max(...rotated.map(([, y]) => y))
-
-        const rawCol = (e.clientX - rect.left) / CELL_SIZE
-        const rawRow = (e.clientY - rect.top)  / CELL_SIZE
-
-        const col = Math.floor(rawCol - maxX / 2)
-        const row = Math.floor(rawRow - maxY / 2)
+        const col = Math.floor((e.clientX - rect.left) / CELL_SIZE)
+        const row = Math.floor((e.clientY - rect.top)  / CELL_SIZE)
 
         return { row, col }
     }
@@ -101,25 +94,21 @@ export default function GamePage() {
 
     function handleBoardMouseMove(e) {
         if (!drag.active) return
-        setDrag(prev => ({ ...prev, boardPos: getBoardPos(e, prev.cells, prev.rotation) }))
+        setDrag(prev => ({ ...prev, boardPos: getBoardPos(e) }))
     }
 
     function handleBoardMouseUp(e) {
         if (!drag.active || e.button !== 0) return
-        if (drag.boardPos) {
-            const {row, col} = drag.boardPos
+        
+        const boardPos = getBoardPos(e)
+
+        if (boardPos) {
+            const { row, col } = boardPos
             const cells = rotateCell(drag.cells, drag.rotation)
 
-            console.log('Place piece:', {
-                piece_id: drag.piece_id,
-                anchor:   [col, row],
-                rotation: drag.rotation,
-                name: PIECE_CATALOG[drag.piece_id].name
-            })
-        
-            const isOnBoard = cells.every(([dr, dc]) => {
-                const r = row + dr
-                const c = col + dc
+            const isOnBoard = cells.every(([dx, dy]) => {
+                const c = col + dx
+                const r = row + dy
                 return 0 <= r && r < BOARD_SIZE && 0 <= c && c < BOARD_SIZE
             })
 
@@ -127,7 +116,14 @@ export default function GamePage() {
                 game.makeMove(drag.piece_id, [col, row], drag.rotation)
             }
 
+            console.log('Place piece:', {
+                piece_id: drag.piece_id,
+                anchor:   [col, row],
+                rotation: drag.rotation,
+                name: PIECE_CATALOG[drag.piece_id].name
+            })
         }
+
         setDrag(EMPTY_DRAG)
     }
 

@@ -18,11 +18,6 @@ class Engine:
         shape = list(PIECE_CATALOG[piece_id].shape)
         for _ in range(rotation % 4):
             shape = [(-y, x) for x, y in shape]
-        
-        min_x = min(x for x, y in shape)
-        min_y = min(y for x, y in shape)
-        shape = [(x - min_x, y - min_y) for x, y in shape]
-        
         return shape
 
     @staticmethod
@@ -35,6 +30,15 @@ class Engine:
 
         piece = Engine.get_rotated_piece(piece_id, rotation)
         ax, ay = anchor
+
+        if piece_id == 0:
+            for dx, dy in piece:
+                x, y = ax + dx, ay + dy
+                if not (0 <= x < 10 and 0 <= y < 10):
+                    return False
+                if board.grid[y][x].piece_id != EMPTY_TILE:
+                    return False
+            return True
 
         opp_territory = board.territories.get(OPPOSITE.get(color), set())
 

@@ -18,7 +18,7 @@ Game structure used:
 
 import tkinter as tk
 from backend.models.enums import PlayerColor, GameStatus
-from backend.models.piece import PASS_TURN_ID
+from backend.models.piece import PASS_TURN_ID, EMPTY_TILE
 
 # ── visual constants ──────────────────────────────────────────────────────────
 
@@ -36,14 +36,16 @@ DIM         = "#777777"
 MONO        = ("Courier New", 10)
 MONO_SM     = ("Courier New", 9)
 
+EMPTY_FILL   = "#3b2a1e"   # puste miejsce na planszy
 CELL_FILL = {
-    PlayerColor.NEUTRAL: "#3b2a1e",
+    PlayerColor.NEUTRAL: "#707070",  # klocek katedry (szary)
     PlayerColor.WHITE:   "#ddd0b3",
     PlayerColor.RED:     "#9b2418",
 }
 PIECE_FG = {
-    PlayerColor.WHITE: "#1a1a1a",
-    PlayerColor.RED:   "#f5ddb0",
+    PlayerColor.NEUTRAL: "#e8e8e8",
+    PlayerColor.WHITE:   "#1a1a1a",
+    PlayerColor.RED:     "#f5ddb0",
 }
 TERR_FILL = {
     PlayerColor.WHITE: "#b8c9a0",
@@ -250,19 +252,21 @@ class DebugVisualizer:
         # cells
         for r in range(GRID):
             for c in range(GRID):
-                cell = board.grid[r][c]
-                pc   = cell.player_color
-                x0, y0 = PAD + c * CELL, PAD + r * CELL
+                cell    = board.grid[r][c]
+                pc      = cell.player_color
+                is_empty = cell.piece_id == EMPTY_TILE
+                x0, y0  = PAD + c * CELL, PAD + r * CELL
+
+                fill = EMPTY_FILL if is_empty else CELL_FILL.get(pc, EMPTY_FILL)
                 self.canvas.create_rectangle(
                     x0, y0, x0 + CELL, y0 + CELL,
-                    fill=CELL_FILL.get(pc, CELL_FILL[PlayerColor.NEUTRAL]),
-                    outline="#1a0f0a", width=1,
+                    fill=fill, outline="#1a0f0a", width=1,
                 )
-                if pc != PlayerColor.NEUTRAL:
+                if not is_empty:
                     self.canvas.create_text(
                         x0 + CELL // 2, y0 + CELL // 2,
                         text=str(cell.piece_id),
-                        fill=PIECE_FG.get(pc, "#ccc"),
+                        fill=PIECE_FG.get(pc, "#cccccc"),
                         font=("Courier New", 9, "bold"),
                     )
 
