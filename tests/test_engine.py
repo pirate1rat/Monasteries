@@ -17,6 +17,7 @@ def set_cell(board, x: int, y: int, color: PlayerColor, piece_id: int):
     """Helper to manually set board cell states in tests."""
     board.grid[y][x] = Cell(player_color=color, piece_id=piece_id)
 
+
 @pytest.fixture
 def board():
     return Board()
@@ -29,7 +30,7 @@ def board():
 class TestGetRotatedPiece:
     """
     Clockwise rotation by 90°: (x, y) → (-y, x)
-    
+
     NOTE: the original code has a bug – `for ((x, y), i) in enumerate(new_shape):`
     should be `for (i, (x, y)) in enumerate(new_shape):`.
     The following tests document the EXPECTED behavior (some of them fail on the buggy code).
@@ -215,7 +216,6 @@ class TestCalculateTerritory:
         ]
         for i, (nx, ny) in enumerate(neighbors):
             color = PlayerColor.WHITE if i % 2 == 0 else PlayerColor.RED
-            # alternating IDs: white=1, red=2
             pid = 1 if color == PlayerColor.WHITE else 2
             set_cell(board, nx, ny, color, pid)
 
@@ -263,18 +263,18 @@ class TestCalculateTerritory:
 class TestHasPossibleMoves:
 
     def test_empty_board_has_moves(self, board):
-        remaining = [1]
+        remaining = {1: 1}
         assert Engine.has_possible_moves(board, PlayerColor.WHITE, remaining) is True
 
     def test_no_pieces_no_moves(self, board):
-        assert Engine.has_possible_moves(board, PlayerColor.WHITE, []) is False
+        assert Engine.has_possible_moves(board, PlayerColor.WHITE, {}) is False
 
     def test_full_board_no_moves(self, board):
         """Fully occupied board – no available empty cells."""
         for y in range(10):
             for x in range(10):
                 set_cell(board, x, y, PlayerColor.WHITE, 1)
-        assert Engine.has_possible_moves(board, PlayerColor.WHITE, [1]) is False
+        assert Engine.has_possible_moves(board, PlayerColor.WHITE, {1: 1}) is False
 
     def test_piece_fits_only_in_specific_rotation(self, board):
         """
@@ -285,7 +285,7 @@ class TestHasPossibleMoves:
             for x in range(10):
                 set_cell(board, x, y, PlayerColor.WHITE, 1)
         # A 1x2 piece horizontally (rotation=0) fits in row 0
-        assert Engine.has_possible_moves(board, PlayerColor.RED, [4]) is True
+        assert Engine.has_possible_moves(board, PlayerColor.RED, {4: 1}) is True
 
     def test_board_blocked_by_enemy_territory(self, board):
         """If the only empty spaces are enemy territory – no moves available."""
@@ -295,7 +295,7 @@ class TestHasPossibleMoves:
                 if not (x == 5 and y == 5):
                     set_cell(board, x, y, PlayerColor.RED, 2)
         board.territories[PlayerColor.WHITE].add((5, 5))
-        assert Engine.has_possible_moves(board, PlayerColor.RED, [2]) is False
+        assert Engine.has_possible_moves(board, PlayerColor.RED, {2: 1}) is False
 
 
 # ============================================================
@@ -305,7 +305,7 @@ class TestHasPossibleMoves:
 class TestCheckGameOver:
 
     def test_game_not_over_when_moves_available(self, board):
-        result = Engine.check_game_over(board, [1], [2])
+        result = Engine.check_game_over(board, {1: 1}, {2: 1})
         assert result is None
 
     def test_draw_when_scores_equal(self, board):
@@ -313,26 +313,25 @@ class TestCheckGameOver:
         Both players have no moves, and the sizes of remaining pieces are equal → DRAW.
         Pieces: WHITE=[1 (size=1)], RED=[2 (size=1)]
         """
-        # Occupy the board so that no moves are possible
         for y in range(10):
             for x in range(10):
                 set_cell(board, x, y, PlayerColor.WHITE, 1)
-        result = Engine.check_game_over(board, [1], [2])
+        result = Engine.check_game_over(board, {1: 1}, {2: 1})
         assert result == GameResult.DRAW
 
     def test_white_wins_when_red_has_more_remaining(self, board):
         """
         Lower score = fewer unplayed piece cells = WIN.
         WHITE remaining: size=1, RED remaining: size=1+2=3 → WHITE_WINS.
-        
+
         NOTE: original code has a bug – red_score calculates using white_remaining_pieces!
         This test fails on the original code.
         """
         for y in range(10):
             for x in range(10):
                 set_cell(board, x, y, PlayerColor.WHITE, 1)
-        # WHITE: [piece_id=1, size=1], RED: [piece_id=2 size=1, piece_id=4 size=2] = 3
-        result = Engine.check_game_over(board, [1], [2, 4])
+        # WHITE: piece_id=1 size=1; RED: piece_id=2 size=1 + piece_id=4 size=2 → total 3
+        result = Engine.check_game_over(board, {1: 1}, {2: 1, 4: 1})
         assert result == GameResult.WHITE_WINS, (
             "BUG: red_score uses white_remaining_pieces instead of red_remaining_pieces"
         )
@@ -341,12 +340,12 @@ class TestCheckGameOver:
         for y in range(10):
             for x in range(10):
                 set_cell(board, x, y, PlayerColor.WHITE, 1)
-        # WHITE: [1, 3] = size 1+2=3, RED: [2] = size 1
-        result = Engine.check_game_over(board, [1, 3], [2])
+        # WHITE: piece_id=1 size=1 + piece_id=3 size=2 → total 3; RED: piece_id=2 size=1
+        result = Engine.check_game_over(board, {1: 1, 3: 1}, {2: 1})
         assert result == GameResult.RED_WINS
 
     def test_returns_none_when_one_player_can_move(self, board):
         """The game continues as long as at least one player can make a move."""
         # Only WHITE can move – RED has no pieces left
-        result = Engine.check_game_over(board, [1], [])
+        result = Engine.check_game_over(board, {1: 1}, {})
         assert result is None
