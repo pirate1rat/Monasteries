@@ -19,7 +19,7 @@ class Board:
             PlayerColor.WHITE: set(),
             PlayerColor.RED: set(),
         }
-        self.bfs_iter: int = 0
+        self.bfs_iter: int = 1
         self.placements: dict[str, Placement] = {}
         self._next_token: int = 0
 
@@ -28,7 +28,7 @@ class Board:
         Places a piece on the board.
         Returns the token_id of the new piece, or None if the move is illegal.
         """
-        print("????????????????????\n\n\n\n\n\n\n", placement)
+        print("????????????????????\n", placement)
 
         piece_id: int = placement.piece_id
         anchor: tuple[int, int] = placement.anchor
@@ -49,12 +49,18 @@ class Board:
         self.placements[token_id] = Placement(token_id, piece_id, anchor, rotation, color)
 
         if color == PlayerColor.NEUTRAL:
-            return MoveResult(
+            # return MoveResult(
+            #     token_id=token_id,
+            #     captured=None,
+            #     territories_gained=set()
+            # )
+            res = MoveResult(
                 token_id=token_id,
                 captured=None,
                 territories_gained=set()
-            )
+            ); print(res); return res
 
+        owner = None
         captured = None
         tiles = set()
 
@@ -70,6 +76,7 @@ class Board:
                     continue
 
                 owner, tiles, interior = Engine.calculate_territory(self, (nx, ny))
+                print(owner, tiles, interior)
 
                 if owner != color:
                     continue
@@ -88,11 +95,17 @@ class Board:
                     captured = self.remove_piece(removed.token_id) # Placement | None
                     self.territories[color] |= freed_cells
 
-        return MoveResult(
+        # return MoveResult(
+        #     token_id=token_id,
+        #     captured=captured,
+        #     territories_gained=tiles | (freed_cells if captured else set())
+        # )
+        res = MoveResult(
             token_id=token_id,
             captured=captured,
-            territories_gained=tiles | (freed_cells if captured else set())
-        )
+            territories_gained= tiles | (freed_cells if captured else set()) \
+                if owner != PlayerColor.NEUTRAL else None
+        ); print(res); return res
 
     def remove_piece(self, token_id: str) -> Placement | None:
         """

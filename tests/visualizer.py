@@ -1,6 +1,7 @@
 import tkinter as tk
 from backend.engine.board import Board
 from backend.models.enums import PlayerColor
+from backend.models.placement import Placement
 from backend.models.piece import EMPTY_TILE
 
 class BoardVisualizer:
@@ -70,9 +71,9 @@ if __name__ == "__main__":
     game_board = Board()
     
     # Place sample pieces (using Cathedral and Red/White Towers based on PIECE_CATALOG)
-    game_board.place_piece(piece_id=0, anchor=(4, 4), rotation=0, color=PlayerColor.NEUTRAL)
-    game_board.place_piece(piece_id=22, anchor=(2, 8), rotation=1, color=PlayerColor.RED)
-    game_board.place_piece(piece_id=21, anchor=(8, 2), rotation=0, color=PlayerColor.WHITE)
+    game_board.place_piece(Placement(token_id="", piece_id=0, anchor=(4, 4), rotation=0, color=PlayerColor.NEUTRAL))
+    game_board.place_piece(Placement(token_id="", piece_id=22, anchor=(2, 8), rotation=1, color=PlayerColor.RED))
+    game_board.place_piece(Placement(token_id="", piece_id=21, anchor=(8, 2), rotation=0, color=PlayerColor.WHITE))
     
     # Start the visualization application
     app = BoardVisualizer(game_board)

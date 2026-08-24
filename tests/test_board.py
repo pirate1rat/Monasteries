@@ -4,6 +4,7 @@ from backend.models.enums import PlayerColor
 from backend.models.piece import EMPTY_TILE
 from backend.models.placement import Placement
 
+from tests.visualizer import BoardVisualizer as BV
 
 def _pl(piece_id, anchor, rotation, color):
     """Shorthand: create a Placement for tests (token_id is ignored by place_piece)."""
@@ -79,10 +80,9 @@ class TestTerritoryGrabbing:
         
         # Placing White Taverns to form a diagonal wall
         empty_board.place_piece(Placement("W1", 1, (1, 0), 0, PlayerColor.WHITE))
-        empty_board.place_piece(Placement("W2", 1, (2, 1), 0, PlayerColor.WHITE))
-        empty_board.place_piece(Placement("W3", 1, (3, 2), 0, PlayerColor.WHITE))
         empty_board.place_piece(Placement("W4", 1, (0, 1), 0, PlayerColor.WHITE))
-        
+
+        bv = BV(empty_board); bv.run()
         # The area (0,0) is partially enclosed but has a diagonal gap between (1,0) and (0,1).
         assert (0, 0) not in empty_board.territories[PlayerColor.WHITE]
 
@@ -90,25 +90,28 @@ class TestTerritoryGrabbing:
         # The map boundaries should naturally act as walls for territory generation.
         
         # Enclosing a 1x1 space at the bottom right corner (9,9)
-        empty_board.place_piece(Placement("W1", 1, (8, 9), 0, PlayerColor.WHITE))
+        empty_board.place_piece(Placement("W1", 3, (8, 8), 0, PlayerColor.WHITE))
         empty_board.place_piece(Placement("W2", 1, (9, 8), 0, PlayerColor.WHITE))
-        
+
+        bv = BV(empty_board); bv.run()
         # The corner itself (9,9) should now belong to WHITE
         assert (9, 9) in empty_board.territories[PlayerColor.WHITE]
 
     def test_build_on_own_territory_allowed(self, empty_board):
         # Players should be able to place pieces within their OWN captured territory.
         
-        empty_board.place_piece(Placement("W1", 1, (0, 1), 0, PlayerColor.WHITE))
-        empty_board.place_piece(Placement("W2", 1, (1, 0), 0, PlayerColor.WHITE))
+        empty_board.place_piece(Placement("W1", 3, (8, 8), 0, PlayerColor.WHITE))
+        empty_board.place_piece(Placement("W2", 1, (9, 8), 0, PlayerColor.WHITE))
         
         # (0,0) is now White's territory.
         # White attempts to build a Tavern there.
         result = empty_board.place_piece(Placement("W_INSIDE", 1, (0, 0), 0, PlayerColor.WHITE))
-        
+        result = empty_board.place_piece(Placement("W2_INSIDE", 1, (9, 9), 0, PlayerColor.WHITE))
+
+        bv = BV(empty_board); bv.run()
         assert result is not None, "Player should be able to build on their own territory"
 
-    def test_build_on_enemy_territory_blocked(self, empty_board):
+    def test_build_on_enemy_territory_open(self, empty_board):
         # Players must be strictly blocked from building on the opponent's territory.
         
         # White secures the corner (0,0)
@@ -117,7 +120,21 @@ class TestTerritoryGrabbing:
         
         # Red attempts to build on White's territory
         result = empty_board.place_piece(Placement("R1", 2, (0, 0), 0, PlayerColor.RED))
+
+        bv = BV(empty_board); bv.run()
+        assert result is not None, "Player should be able to build in this position"
+
+    def test_build_on_enemy_territory_blocked(self, empty_board):
+        # Players must be strictly blocked from building on the opponent's territory.
         
+        # White secures the corner (0,0)
+        empty_board.place_piece(Placement("W1", 1, (0, 1), 0, PlayerColor.WHITE))
+        empty_board.place_piece(Placement("W2", 3, (1, 0), 0, PlayerColor.WHITE))
+        
+        # Red attempts to build on White's territory
+        result = empty_board.place_piece(Placement("R1", 2, (0, 0), 0, PlayerColor.RED))
+
+        bv = BV(empty_board); bv.run()
         assert result is None, "Opponent should be blocked from building on captured territory"
 
 

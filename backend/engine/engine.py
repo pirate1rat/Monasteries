@@ -77,7 +77,6 @@ class Engine:
         q: Queue = Queue()
 
         q.put(position)
-        board.bfs_iter += 1
         k = board.bfs_iter
 
         while not q.empty():
@@ -135,6 +134,7 @@ class Engine:
         else:
             owner = PlayerColor.NEUTRAL
 
+        board.bfs_iter += 1 #has to be at the end so new iter > recently iterated
         return (owner, tiles, interior_pieces)
 
     @staticmethod
