@@ -160,6 +160,7 @@ class Game:
             return MoveResult(token_id=PASS_TURN_ID, captured=None, territories_gained=set())
 
         result: MoveResult = self.board.place_piece(placement)
+        self.board.bfs_iter += 1
         if result is None:
             save_game(self)
             return None

@@ -8,3 +8,12 @@ class Placement:
     anchor: tuple[int, int]
     rotation: int
     color: PlayerColor
+
+    def __hash__(self):
+        return hash((
+            self.token_id,
+            self.piece_id,
+            self.anchor,
+            self.rotation,
+            self.color,
+        ))

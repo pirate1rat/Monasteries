@@ -54,7 +54,7 @@ class Engine:
         return True
 
     @staticmethod
-    def calculate_territory(board: "Board", position: tuple[int, int]) -> tuple[PlayerColor, set[tuple[int, int]], list[Placement]]:
+    def calculate_territory(board: "Board", position: tuple[int, int], color: PlayerColor) -> tuple[PlayerColor, set[tuple[int, int]], list[Placement]]:
         """
         BFS starting from `position`.
         Returns (owner, empty_tiles, internal_pieces).
@@ -72,8 +72,9 @@ class Engine:
                 for dx, dy in Engine.get_rotated_piece(p.piece_id, p.rotation)
             )
 
+        print(color)
         tiles: set[tuple[int, int]] = set()
-        discovered_non_empty: set[tuple[int, int]] = set()
+        discovered_other_pieces: set[tuple[int, int]] = set()
         q: Queue = Queue()
 
         q.put(position)
@@ -88,53 +89,30 @@ class Engine:
                 continue
             board.bfs_grid[y][x] = k
 
-            if board.grid[y][x].piece_id != EMPTY_TILE:
-                discovered_non_empty.add((x, y))
-            else:
+            if board.grid[y][x].piece_id == EMPTY_TILE:
                 tiles.add((x, y))
+                print("tiles dodaje - ", x, y)
+                for dx, dy in NEIGHBOR_OFFSETS:
+                    q.put((x + dx, y + dy))
+            elif board.grid[y][x].player_color != color:
+                discovered_other_pieces.add((x, y))
+                print("discovered_other_pieces dodaje - ", (x, y))
                 for dx, dy in NEIGHBOR_OFFSETS:
                     q.put((x + dx, y + dy))
 
-        potentially_interior: set[tuple[int, int]] = set()
-        candidates: list[tuple[Placement, frozenset]] = []
-
+        interior: set[tuple[int, int]] = set()
         for placement in board.placements.values():
             cells = get_piece_cells(placement)
-            if cells.issubset(discovered_non_empty):
-                potentially_interior.update(cells)
-                candidates.append((placement, cells))
+            if cells.issubset(discovered_other_pieces):
+                interior.add(placement)
 
-        interior_pieces: list[Placement] = []
-        interior_cells: set[tuple[int, int]] = set()
-
-        for placement, cells in candidates:
-            is_interior = True
-            for px, py in cells:
-                for dx, dy in NEIGHBOR_OFFSETS:
-                    nx, ny = px + dx, py + dy
-                    if not (0 <= nx < 10 and 0 <= ny < 10):
-                        continue
-                    if (nx, ny) not in tiles and (nx, ny) not in potentially_interior:
-                        is_interior = False
-                        break
-                if not is_interior:
-                    break
-            if is_interior:
-                interior_pieces.append(placement)
-                interior_cells.update(cells)
-
-        border_colors = {
-            board.grid[y][x].player_color
-            for x, y in (discovered_non_empty - interior_cells)
-        }
-        border_colors.discard(PlayerColor.NEUTRAL)
-
-        if len(border_colors) == 1:
-            owner = border_colors.pop()
-        else:
+        if 1 < len(interior):
             owner = PlayerColor.NEUTRAL
+        else:
+            owner = color
+        print("owner - ", owner)
 
-        return (owner, tiles, interior_pieces)
+        return (owner, tiles, interior)
 
     @staticmethod
     def has_possible_moves(board: "Board", color: PlayerColor, remaining_pieces: dict[int, int]) -> bool:

@@ -48,7 +48,7 @@ class Board:
         self._next_token += 1
         self.placements[token_id] = Placement(token_id, piece_id, anchor, rotation, color)
 
-        if color == PlayerColor.NEUTRAL:
+        if color == PlayerColor.NEUTRAL or self.bfs_iter <= 2:
             # return MoveResult(
             #     token_id=token_id,
             #     captured=None,
@@ -58,7 +58,7 @@ class Board:
                 token_id=token_id,
                 captured=None,
                 territories_gained=set()
-            ); print(res); return res
+            ); print(res, "PLAYED CAT OR 1st RED"); return res
 
         owner = None
         captured = None
@@ -72,21 +72,22 @@ class Board:
                     continue
                 if self.bfs_iter <= self.bfs_grid[ny][nx]: # if bfs has been already run in this cell
                     continue
-                if self.grid[ny][nx].piece_id != EMPTY_TILE:
+                if self.grid[ny][nx].player_color == color:
                     continue
 
-                owner, tiles, interior = Engine.calculate_territory(self, (nx, ny))
+                print(f"&&&&&&&\n\n started in {nx}, {ny}")
+                owner, tiles, interior = Engine.calculate_territory(self, (nx, ny), color)
                 print(owner, tiles, interior)
 
-                if owner != color:
+                if owner == PlayerColor.NEUTRAL:
                     continue
 
                 self.territories[PlayerColor.NEUTRAL] -= tiles
                 self.territories[OPPOSITE[color]] -= tiles
                 self.territories[color] |= tiles
 
-                if len(interior) == 1 and interior[0].color == OPPOSITE[color]:
-                    removed = interior[0]
+                if len(interior) == 1:
+                    removed = interior.pop()
                     freed_cells = {
                         (removed.anchor[0] + ddx, removed.anchor[1] + ddy)
                         for ddx, ddy in Engine.get_rotated_piece(
@@ -95,7 +96,7 @@ class Board:
                     captured = self.remove_piece(removed.token_id) # Placement | None
                     self.territories[color] |= freed_cells
 
-        self.bfs_iter += 1 #has to be at the end so new iter > recently iterated
+        #self.bfs_iter += 1 #has to be at the end so new iter > recently iterated
         # return MoveResult(
         #     token_id=token_id,
         #     captured=captured,
