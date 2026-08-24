@@ -95,6 +95,7 @@ class Board:
                     captured = self.remove_piece(removed.token_id) # Placement | None
                     self.territories[color] |= freed_cells
 
+        self.bfs_iter += 1 #has to be at the end so new iter > recently iterated
         # return MoveResult(
         #     token_id=token_id,
         #     captured=captured,
@@ -104,7 +105,7 @@ class Board:
             token_id=token_id,
             captured=captured,
             territories_gained= tiles | (freed_cells if captured else set()) \
-                if owner != PlayerColor.NEUTRAL else None
+                if owner != PlayerColor.NEUTRAL else set()
         ); print(res); return res
 
     def remove_piece(self, token_id: str) -> Placement | None:
