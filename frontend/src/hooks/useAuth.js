@@ -26,14 +26,6 @@ export function useAuth() {
         if (_player === null) {
             api.get('auth/me')
             .then(res => setPlayer(new Player(res.data)))
-            .catch(() => {
-                api.post('/auth/anonymous')
-                    .then(res => setPlayer(new Player({
-                            player_id: res.data.player_id,
-                            username:  null,
-                            anonymous: true,
-                    })))
-            })
         }
 
         return () => _listeners.delete(setLocalPlayer)

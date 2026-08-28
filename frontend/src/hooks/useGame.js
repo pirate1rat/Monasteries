@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { io } from 'socket.io-client'
 import { PIECE_CATALOG } from '../data/pieceCatalog'
+import { getSocket } from '../services/socket'
 
-const socket = io()
+const socket = getSocket()
 
 function buildPieceList(piecesFromServer) {
     if(!piecesFromServer) return []

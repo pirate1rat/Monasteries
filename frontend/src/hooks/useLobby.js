@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom' 
 import api from '../services/api'
-import { io } from 'socket.io-client'
+import { getSocket } from '../services/socket'
 
-const socket = io()
+const socket = getSocket()
 
 export function useLobby() {
     const [lobbies, setLobbies] = useState([])

@@ -56,8 +56,14 @@ def me():
             "username":  None,
             "anonymous": True,
         })
-    return jsonify({"status": "not_logged_in"}), 401
+    else:
+        anon_id = -abs(hash(os.urandom(8)))
+        session["player_id"] = anon_id
+        session["is_anonymous"] = True
+        session.permanent = True
+        return jsonify({"status": "ok", "player_id": anon_id})
 
+#to delete in future
 @auth_bp.route("/anonymous", methods=['POST'])
 def anonymous():
     anon_id = -abs(hash(os.urandom(8)))

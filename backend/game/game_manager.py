@@ -117,7 +117,7 @@ class GameManager:
             del self.active_lobbies[l_id]
         return stale
 
-    def handle_disconnect(self, game_id: int, player_id: int) -> bool:
+    def handle_disconnect(self, game_id: int, player_id: int, on_timeout) -> bool:
         """
         Starts the disconnection timer. The on_timeout callback calls end_game
         and emits an event through Socket.IO — Game does not do this itself.
@@ -127,10 +127,6 @@ class GameManager:
         game = self.get_game(game_id)
         if game is None:
             return False
-
-        def on_timeout(gid: int, result: GameResult):
-            self.end_game(gid)
-            #TODO
 
         game.on_player_disconnect(player_id, on_timeout)
         return True

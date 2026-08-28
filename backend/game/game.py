@@ -85,7 +85,14 @@ class Game:
         return self.players.inverse[color]
     
     def _time_left(self, color: PlayerColor) -> float:
-        return self.white_time_left if color == PlayerColor.WHITE else self.red_time_left
+        now = datetime.datetime.now()
+        elapsed = (now - self.last_move_at).total_seconds()
+        time = self.white_time_left if color == PlayerColor.WHITE else self.red_time_left
+
+        if self.current_turn == color:
+            return max(0, time - elapsed)
+        else:
+            return time
 
     def _set_time_left(self, color: PlayerColor, value: float):
         if color == PlayerColor.WHITE:

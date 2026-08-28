@@ -43,11 +43,6 @@ const SAMPLE_HISTORY = [
     { move: 8,  player: 'You',      action: 'Quad-L → I2'       },
 ]
 
-const playerName   = 'Player'
-const opponentName = 'Opponent'
-const playerTime   = '08:42'
-const opponentTime = '09:15'
-
 export default function GamePage() {
     const { gameId } = useParams()
     const game = useGame(gameId)
@@ -209,7 +204,7 @@ export default function GamePage() {
 
                     <GameTimer 
                         serverTime={game.oppTime}
-                        label={opponentName}
+                        label="Opponent"
                         active={!game.isPlayerTurn} 
                     />
 
@@ -237,7 +232,7 @@ export default function GamePage() {
                     <button onClick={() => { setWinner('You'); setGameOver(true); setShowPopup(true) }}>
                         [DEV] Win
                     </button>
-                    <button onClick={() => { setWinner(opponentName); setGameOver(true); setShowPopup(true) }}>
+                    <button onClick={() => { setWinner('Opponent'); setGameOver(true); setShowPopup(true) }}>
                         [DEV] Lose
                     </button>
                     <button onClick={() => setShowPopup(false)}>

@@ -59,7 +59,7 @@ def register_handlers(socketio: SocketIO):
         emit("opponent reconnected", {}, room=room, include_self=False)
 
     @socketio.on("disconnect")
-    def handle_disconnect():
+    def handle_disconnect(reason):
         player_id = get_current_player_id()
         if player_id is None:
             return
