@@ -55,7 +55,6 @@ export function useGame(gameId) {
             setPlayerPieces(buildPieceList(redPieces))
             setOppPieces(buildPieceList(whitePieces))
         }
-        console.log("PO UBDATE: ",playerPieces, oppPieces)
     }
 
     useEffect(() => {
@@ -83,7 +82,7 @@ export function useGame(gameId) {
             
             const myColor = playerColorRef.current
             setPlayerTime(myColor === 'white' ? data.white_time : data.red_time)
-            setOppTime(myColor === 'red' ? data.red_time : data.white_time)
+            setOppTime(myColor === 'white' ? data.red_time : data.white_time)
             
             updatePieces(data.white_pieces, data.red_pieces, null)
 
