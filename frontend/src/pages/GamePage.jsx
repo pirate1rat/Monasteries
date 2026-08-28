@@ -196,10 +196,10 @@ export default function GamePage() {
 
                 {/* ── Right column ── */}
                 <aside className={styles.rightCol}>
-                    <GameTimer 
-                        time={opponentTime}
-                        label={opponentName}
-                        active={!game.isPlayerTurn} 
+                    <GameTimer
+                        serverTime={game.playerTime}
+                        label="You"
+                        active={game.isPlayerTurn}
                     />
 
                     <MoveHistory
@@ -207,10 +207,10 @@ export default function GamePage() {
                         playerColor={game.playerColor}
                     />
 
-                    <GameTimer
-                        time={game.playerTime}
-                        label="You"
-                        active={game.isPlayerTurn}
+                    <GameTimer 
+                        serverTime={game.oppTime}
+                        label={opponentName}
+                        active={!game.isPlayerTurn} 
                     />
 
                     <GameControls

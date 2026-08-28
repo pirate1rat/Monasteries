@@ -36,3 +36,17 @@
 .timerActive .timerValue {
     color: var(--gp-amber);
 }
+
+.timerLow .timerValue {
+    color: #e0a060;
+}
+
+.timerCritical .timerValue {
+    color: #e05050;
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.5; }
+}

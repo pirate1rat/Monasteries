@@ -82,7 +82,7 @@ class TestTerritoryGrabbing:
         empty_board.place_piece(Placement("W1", 1, (1, 0), 0, PlayerColor.WHITE))
         empty_board.place_piece(Placement("W4", 1, (0, 1), 0, PlayerColor.WHITE))
 
-        bv = BV(empty_board); bv.run()
+        bv = BV(empty_board); #bv.run()
         # The area (0,0) is partially enclosed but has a diagonal gap between (1,0) and (0,1).
         assert (0, 0) not in empty_board.territories[PlayerColor.WHITE]
 
@@ -93,7 +93,7 @@ class TestTerritoryGrabbing:
         empty_board.place_piece(Placement("W1", 3, (8, 8), 0, PlayerColor.WHITE))
         empty_board.place_piece(Placement("W2", 1, (9, 8), 0, PlayerColor.WHITE))
 
-        bv = BV(empty_board); bv.run()
+        bv = BV(empty_board); #bv.run()
         # The corner itself (9,9) should now belong to WHITE
         assert (9, 9) in empty_board.territories[PlayerColor.WHITE]
 
@@ -108,7 +108,7 @@ class TestTerritoryGrabbing:
         result = empty_board.place_piece(Placement("W_INSIDE", 1, (0, 0), 0, PlayerColor.WHITE))
         result = empty_board.place_piece(Placement("W2_INSIDE", 1, (9, 9), 0, PlayerColor.WHITE))
 
-        bv = BV(empty_board); bv.run()
+        bv = BV(empty_board); #bv.run()
         assert result is not None, "Player should be able to build on their own territory"
 
     def test_build_on_enemy_territory_open(self, empty_board):
@@ -121,7 +121,7 @@ class TestTerritoryGrabbing:
         # Red attempts to build on White's territory
         result = empty_board.place_piece(Placement("R1", 2, (0, 0), 0, PlayerColor.RED))
 
-        bv = BV(empty_board); bv.run()
+        bv = BV(empty_board); #bv.run()
         assert result is not None, "Player should be able to build in this position"
 
     def test_build_on_enemy_territory_blocked(self, empty_board):
@@ -134,7 +134,7 @@ class TestTerritoryGrabbing:
         # Red attempts to build on White's territory
         result = empty_board.place_piece(Placement("R1", 2, (0, 0), 0, PlayerColor.RED))
 
-        bv = BV(empty_board); bv.run()
+        bv = BV(empty_board); #bv.run()
         assert result is None, "Opponent should be blocked from building on captured territory"
 
 
