@@ -144,8 +144,6 @@ class Game:
         color = self._color(player_id)
         placement = move.placement
 
-        if placement.piece_id == 0: placement.color = PlayerColor.NEUTRAL
-
         # pass turn
         if placement.piece_id == PASS_TURN_ID:
             self._tick_clock(color)
@@ -160,12 +158,10 @@ class Game:
             return MoveResult(token_id=PASS_TURN_ID, captured=None, territories_gained=set())
 
         result: MoveResult = self.board.place_piece(placement)
-        self.board.bfs_iter += 1
         if result is None:
             save_game(self)
             return None
 
-        print("##############\n\n\n\n\n############", placement)
         if placement.piece_id in self.pieces_on_hand.get(color, {}):
             self.pieces_on_hand[color][placement.piece_id] -= 1
             if self.pieces_on_hand[color][placement.piece_id] == 0:

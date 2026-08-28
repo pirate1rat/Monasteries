@@ -19,7 +19,7 @@ class Board:
             PlayerColor.WHITE: set(),
             PlayerColor.RED: set(),
         }
-        self.bfs_iter: int = 1
+        self.bfs_iter: int = 0
         self.placements: dict[str, Placement] = {}
         self._next_token: int = 0
 
@@ -28,7 +28,6 @@ class Board:
         Places a piece on the board.
         Returns the token_id of the new piece, or None if the move is illegal.
         """
-        print("????????????????????\n", placement)
 
         piece_id: int = placement.piece_id
         anchor: tuple[int, int] = placement.anchor
@@ -38,6 +37,7 @@ class Board:
         if not Engine.validate_move(self, piece_id, anchor, rotation, color):
             return None
 
+        self.bfs_iter += 1
         ax, ay = anchor
         offsets = Engine.get_rotated_piece(piece_id, rotation)
 
@@ -48,17 +48,12 @@ class Board:
         self._next_token += 1
         self.placements[token_id] = Placement(token_id, piece_id, anchor, rotation, color)
 
-        if color == PlayerColor.NEUTRAL or self.bfs_iter <= 2:
-            # return MoveResult(
-            #     token_id=token_id,
-            #     captured=None,
-            #     territories_gained=set()
-            # )
-            res = MoveResult(
+        if color == PlayerColor.NEUTRAL:
+            return MoveResult(
                 token_id=token_id,
                 captured=None,
                 territories_gained=set()
-            ); print(res, "PLAYED CAT OR 1st RED"); return res
+            )
 
         owner = None
         captured = None
@@ -75,9 +70,7 @@ class Board:
                 if self.grid[ny][nx].player_color == color:
                     continue
 
-                print(f"&&&&&&&\n\n started in {nx}, {ny}")
                 owner, tiles, interior = Engine.calculate_territory(self, (nx, ny), color)
-                print(owner, tiles, interior)
 
                 if owner == PlayerColor.NEUTRAL:
                     continue
@@ -96,18 +89,12 @@ class Board:
                     captured = self.remove_piece(removed.token_id) # Placement | None
                     self.territories[color] |= freed_cells
 
-        #self.bfs_iter += 1 #has to be at the end so new iter > recently iterated
-        # return MoveResult(
-        #     token_id=token_id,
-        #     captured=captured,
-        #     territories_gained=tiles | (freed_cells if captured else set())
-        # )
-        res = MoveResult(
+        return MoveResult(
             token_id=token_id,
             captured=captured,
             territories_gained= tiles | (freed_cells if captured else set()) \
                 if owner != PlayerColor.NEUTRAL else set()
-        ); print(res); return res
+        )
 
     def remove_piece(self, token_id: str) -> Placement | None:
         """

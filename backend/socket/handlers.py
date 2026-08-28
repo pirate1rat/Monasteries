@@ -169,7 +169,7 @@ def register_handlers(socketio: SocketIO):
             piece_id = data["piece_id"],
             anchor = tuple(data["anchor"]),
             rotation = data["rotation"],
-            color = game._color(player_id)
+            color = game._color(player_id) if data["piece_id"] != 0 else PlayerColor.NEUTRAL 
         )
         move = Move(placement, move_timestamp=0)
         result = game.apply_move(player_id, move)

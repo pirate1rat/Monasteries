@@ -72,7 +72,6 @@ class Engine:
                 for dx, dy in Engine.get_rotated_piece(p.piece_id, p.rotation)
             )
 
-        print(color)
         tiles: set[tuple[int, int]] = set()
         discovered_other_pieces: set[tuple[int, int]] = set()
         q: Queue = Queue()
@@ -91,12 +90,10 @@ class Engine:
 
             if board.grid[y][x].piece_id == EMPTY_TILE:
                 tiles.add((x, y))
-                print("tiles dodaje - ", x, y)
                 for dx, dy in NEIGHBOR_OFFSETS:
                     q.put((x + dx, y + dy))
             elif board.grid[y][x].player_color != color:
                 discovered_other_pieces.add((x, y))
-                print("discovered_other_pieces dodaje - ", (x, y))
                 for dx, dy in NEIGHBOR_OFFSETS:
                     q.put((x + dx, y + dy))
 
@@ -106,11 +103,10 @@ class Engine:
             if cells.issubset(discovered_other_pieces):
                 interior.add(placement)
 
-        if 1 < len(interior):
-            owner = PlayerColor.NEUTRAL
+        if board.bfs_iter <= 3:  # don't capture cathedral on first moves
+            owner = PlayerColor.NEUTRAL if 1 <= len(interior) else color
         else:
-            owner = color
-        print("owner - ", owner)
+            owner = PlayerColor.NEUTRAL if 1 < len(interior) else color
 
         return (owner, tiles, interior)
 
