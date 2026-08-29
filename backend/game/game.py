@@ -143,6 +143,22 @@ class Game:
 
         return None
 
+    def _format_move(self, move: Move) -> str:        
+        p = move.placement
+        if p.piece_id == PASS_TURN_ID:
+            return "Pass"
+        
+        prefab = PIECE_CATALOG.get(p.piece_id)
+        raw_name = prefab.name.replace('_white', '').replace('_red', '')
+        name = raw_name.capitalize()
+        
+        col_letter = chr(ord('A') + p.anchor[0])
+        row_number = p.anchor[1] + 1
+        
+        rotation_str = f" R{p.rotation}" if p.rotation > 0 else ""
+        
+        return f"{name} {col_letter}{row_number} {rotation_str}"
+
     ##############################
 
     def apply_move(self, player_id: int,  move: Move) -> MoveResult | None:
@@ -263,4 +279,5 @@ class Game:
             "status":          self.status.value,
             "result":          self.result.value if self.result else None,
             "draw_offered_by": self.draw_offered_by,
+            "moves_history":   self.get_moves_string()
         }

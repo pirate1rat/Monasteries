@@ -32,17 +32,6 @@ const EMPTY_DRAG = {
     boardPos: null
 }
 
-const SAMPLE_HISTORY = [
-    { move: 1,  player: 'Opponent', action: 'Cathedral → D5'    },
-    { move: 2,  player: 'You',      action: 'Long → B2–B5'      },
-    { move: 3,  player: 'Opponent', action: 'Square → G3'       },
-    { move: 4,  player: 'You',      action: 'Trio-L → H6'       },
-    { move: 5,  player: 'Opponent', action: 'Mono → A1'         },
-    { move: 6,  player: 'You',      action: 'Duo → C8'          },
-    { move: 7,  player: 'Opponent', action: 'Trio-I → F4–F6'    },
-    { move: 8,  player: 'You',      action: 'Quad-L → I2'       },
-]
-
 export default function GamePage() {
     const { gameId } = useParams()
     const game = useGame(gameId)
@@ -198,7 +187,7 @@ export default function GamePage() {
                     />
 
                     <MoveHistory
-                        entries={SAMPLE_HISTORY}
+                        entries={game.history}
                         playerColor={game.playerColor}
                     />
 

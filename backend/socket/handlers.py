@@ -18,28 +18,6 @@ OPPOSITE: dict[PlayerColor, PlayerColor] = {
 def get_current_player_id():
     return current_user.user_id if current_user.is_authenticated else session.get("player_id")
 
-def move_made_payload(game, result):
-    white_id = game.players.inverse[PlayerColor.WHITE]
-    red_id   = game.players.inverse[PlayerColor.RED]
-    return {
-        "token_id": result.token_id,
-        "captured": result.captured.token_id if result.captured else None,
-        "territories_gained": list(result.territories_gained),
-        "board": game.board.to_serializable(),
-        "current_turn": game.current_turn.value,
-        "white_time": game.white_time_left,
-        "red_time": game.red_time_left,
-        "opponent_auto_passed": result.opponent_auto_passed,
-        "player_pieces": {
-            str(pid): qty
-            for pid, qty in game.pieces_on_hand[PlayerColor.WHITE].items()
-        } if game.players.inverse.get(PlayerColor.WHITE) else {},
-        "opponent_pieces": {
-            str(pid): qty
-            for pid, qty in game.pieces_on_hand[PlayerColor.RED].items()
-        } if game.players.inverse.get(PlayerColor.RED) else {},
-    }
-
 def register_handlers(socketio: SocketIO):
 
     #connection
@@ -204,6 +182,9 @@ def register_handlers(socketio: SocketIO):
                 "captured": result.captured.token_id if result.captured else None,
                 "territories_gained": list(result.territories_gained),
                 "opponent_auto_passed": result.opponent_auto_passed,
+                "move_notation": game._format_move(game.moves[-1]),
+                "move_player": OPPOSITE[game.current_turn].value, #who played move
+
         }, room=room)
 
     @socketio.on("resign")

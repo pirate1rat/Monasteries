@@ -88,8 +88,8 @@ export function useGame(gameId) {
 
             setHistory(prev => [...prev, {
                 move: prev.length + 1,
-                player: data.current_turn,
-                action: data.move_notation ?? `piece ${data.token_id}`
+                player: data.move_player,
+                action: data.move_notation
             }])
             setSelectedPiece(null)
             setSelectedRotation(0)

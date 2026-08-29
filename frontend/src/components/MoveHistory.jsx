@@ -20,7 +20,7 @@ export function MoveHistory({ entries, playerColor }) {
                             className={`${styles.historyEntry} ${isMe ? styles.historyYou : styles.historyOpponent}`}
                         >
                             <span className={styles.historyIndex}>{h.move}.</span>
-                            <span className={styles.historyPlayer}>{isMe ? 'You' : 'Opp'}</span>
+                            <span className={styles.historyPlayer}>{isMe ? 'You' : 'Opponent'}</span>
                             <span className={styles.historyAction}>{h.action}</span>
                         </div>
                     )
