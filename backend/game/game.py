@@ -112,7 +112,8 @@ class Game:
 
         now = datetime.datetime.now()
         elapsed = (now - self.last_move_at).total_seconds()
-        self._set_time_left(color, self._time_left(color) - elapsed + self.time_control.incremental)
+        raw = self.white_time_left if color == PlayerColor.WHITE else self.red_time_left
+        self._set_time_left(color, max(0, raw - elapsed + self.time_control.incremental))
         self.last_move_at = now
     
     def _validate_turn(self, player_id: int) -> bool:
