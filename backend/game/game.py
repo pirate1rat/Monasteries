@@ -44,7 +44,7 @@ class Game:
         self.current_turn = PlayerColor.WHITE #player color in current turn
         self.status = GameStatus.IN_PROGRESS
         self.result: GameResult | None = None
-        self.draw_offered_by: int | None = None # player_id
+        self.draw_offered_by: PlayerColor | None = None # player_id
 
         # pieces on player's hand   piece_id, quantity
         self.pieces_on_hand: dict[PlayerColor, dict[int, int]] = self._init_pieces()
@@ -217,11 +217,11 @@ class Game:
     def propose_draw(self, player_id) -> bool:
         if self.draw_offered_by is not None:
             return False
-        self.draw_offered_by = player_id
+        self.draw_offered_by = self._color(player_id)
         return True
 
     def accept_draw(self, player_id) -> GameResult:
-        if self.draw_offered_by is None or self.draw_offered_by == player_id:
+        if self.draw_offered_by is None or self.draw_offered_by == self._color(player_id):
             return None
         self.draw_offered_by = None
         self._finish(GameResult.DRAW)
@@ -279,6 +279,6 @@ class Game:
             "opponent_time":   self._time_left(opp_color),
             "status":          self.status.value,
             "result":          self.result.value if self.result else None,
-            "draw_offered_by": self.draw_offered_by,
+            "draw_offered_by": self.draw_offered_by.value if self.draw_offered_by is not None else None,
             "moves_history":   self.get_moves_string()
         }

@@ -6,7 +6,15 @@ export function WinnerPopup({ winner, onClose }) {
             <div className={styles.popup} onClick={e => e.stopPropagation()}>
                 <div className={styles.popupGlow} />
                 <p className={styles.popupEyebrow}>Game over</p>
-                <h2 className={styles.popupTitle}>{winner} wins</h2>
+                { winner === null ? (
+                    <>
+                        <h2 className={styles.popupTitle}>Draw</h2>
+                    </>
+                ) : (
+                    <>
+                        <h2 className={styles.popupTitle}>{winner} wins</h2>
+                    </>
+                )}
                 <button className={styles.popupClose} onClick={onClose}>Continue</button>
             </div>
         </div>

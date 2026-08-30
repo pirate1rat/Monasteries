@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useGame } from '../hooks/useGame'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import styles from './GamePage.module.css'
 
 import { PiecePanel } from '../components/PiecePanel'
@@ -33,6 +33,7 @@ const EMPTY_DRAG = {
 }
 
 export default function GamePage() {
+    const navigate = useNavigate()
     const { gameId } = useParams()
     const game = useGame(gameId)
 
@@ -40,7 +41,14 @@ export default function GamePage() {
     const [showPopup, setShowPopup] = useState(false)
     
     const gameOver = game.status === 'finished'
-    const winner = game.result
+    console.log(game.status, gameOver)
+    let winner = null
+    switch (game.result) {
+        case 'white_wins':
+            winner = 'White'; break
+        case 'red_wins':
+            winner = 'Red'; break
+    }
 
     const boardRef = useRef(null)
 
@@ -117,6 +125,12 @@ export default function GamePage() {
         setDrag(prev => ({ ...prev, rotation: (prev.rotation + 1) % 4 }))
     }
 
+    //-------------
+
+    function handleNewGame() {
+        navigate('/', { state: { openCreateModal: true }})
+    }
+
     useEffect(() => {
         const handleKey = (e) => { if (e.key === 'Escape') setDrag(EMPTY_DRAG) }
         const handleGlobalMouseUp  = (e) => { if (e.button === 0 && drag.active) setDrag(EMPTY_DRAG) }
@@ -184,6 +198,8 @@ export default function GamePage() {
                         serverTime={game.playerTime}
                         label="You"
                         active={game.isPlayerTurn}
+                        gameOver={gameOver}
+                        onTimeout={game.resign}
                     />
 
                     <MoveHistory
@@ -194,16 +210,21 @@ export default function GamePage() {
                     <GameTimer 
                         serverTime={game.oppTime}
                         label="Opponent"
-                        active={!game.isPlayerTurn} 
+                        active={!game.isPlayerTurn}
+                        gameOver={gameOver}
+                        onTimeout={() => {}}
                     />
 
                     <GameControls
                         gameOver={gameOver}
                         onProposeDraw={game.proposeDraw}
+                        drawOffered={game.drawOffered}
+                        onAcceptDraw={game.acceptDraw}
+                        onRejectDraw={game.rejectDraw}
                         onResign={game.resign}
-                        onRematch={() => {}}
-                        onNewGame={() => {}}
-                        onAnalyze={() => {}}
+                        onRematch={() => {}} //TODO
+                        onNewGame={handleNewGame}
+                        onAnalyze={() => {}} //TODO
                     />
                 </aside>
             </div>

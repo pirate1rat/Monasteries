@@ -9,7 +9,7 @@ function formatTime(seconds) {
     return `${m}:${ss.toString().padStart(2, '0')}`
 }
 
-export function GameTimer({ serverTime, label, active }) {
+export function GameTimer({ serverTime, label, active, gameOver, onTimeout }) {
     const [display, setDisplay] = useState(serverTime)
     const intervalRef = useRef(null)
     const lastTickRef = useRef(null)
@@ -19,21 +19,26 @@ export function GameTimer({ serverTime, label, active }) {
     }, [serverTime])
 
     useEffect(() => {
-        if (!active) {
+        if (!active || serverTime == null || gameOver) {
             clearInterval(intervalRef.current)
             return
         }
-
+        
+        setDisplay(serverTime)
         lastTickRef.current = Date.now()
         intervalRef.current = setInterval(() => {
             const now = Date.now()
             const elapsed = (now - lastTickRef.current) / 1000
             lastTickRef.current = now
-            setDisplay(prev => (prev == null ? prev : Math.max(0, prev - elapsed)))
+            setDisplay(prev => {
+                const next = Math.max(0, prev - elapsed)
+                if (next === 0 && 0 < prev) onTimeout?.()
+                return next
+            })
         }, 100)
 
         return () => clearInterval(intervalRef.current)
-    }, [active])
+    }, [active, serverTime, gameOver])
 
     const seconds = display != null ? Math.floor(display) : null
     const isLow = seconds != null && seconds <= 30

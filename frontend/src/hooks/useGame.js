@@ -74,6 +74,12 @@ export function useGame(gameId) {
             setStatus(data.status)
             setResult(data.result)
             updatePieces(data.white_pieces, data.red_pieces, data.player_color)
+            if (data.draw_offered_by != null 
+                && data.draw_offered_by !== playerColorRef.current) {
+                setDrawOffered(true)
+            } else {
+                setDrawOffered(false)
+            }
         })
 
         socket.on('move_made', (data) => {
@@ -100,7 +106,11 @@ export function useGame(gameId) {
             setResult(data.result)
         })
 
-        socket.on('draw_proposed', () => setDrawOffered(true))
+        socket.on('draw_proposed', (data) => {
+            if (data.by !== playerColorRef.current) {
+                setDrawOffered(true)
+            }
+        })
         socket.on('draw_rejected', () => setDrawOffered(false))
 
         socket.on('opponent_disconnected', (data) => {

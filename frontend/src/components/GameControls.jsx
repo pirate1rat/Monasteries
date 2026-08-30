@@ -1,12 +1,24 @@
 import styles from './GameControls.module.css'
 
-export function GameControls({ gameOver, onProposeDraw, onResign, onRematch, onNewGame, onAnalyze }) {
+export function GameControls({ gameOver, drawOffered, onProposeDraw, onAcceptDraw, onRejectDraw, onResign, onRematch, onNewGame, onAnalyze }) {
     if (gameOver) {
         return (
             <div className={styles.actionButtons}>
                 <button className={styles.btnAction} onClick={onRematch}>Rematch</button>
                 <button className={styles.btnAction} onClick={onNewGame}>New Game</button>
                 <button className={styles.btnAnalyze} onClick={onAnalyze}>Analyze</button>
+            </div>
+        )
+    }
+
+    if (drawOffered) {
+        return (
+            <div className={styles.drawOffer}>
+                <p className={styles.drawOfferText}>Opponent offers a draw</p>
+                <div className={styles.actionButtons}>
+                    <button className={styles.btnDraw} onClick={onAcceptDraw}>Accept</button>
+                    <button className={styles.btnSurrender} onClick={onRejectDraw}>Decline</button>
+                </div>
             </div>
         )
     }

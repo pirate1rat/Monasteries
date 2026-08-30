@@ -39,8 +39,8 @@
 
 .historyEntry {
     display: grid;
-    grid-template-columns: 22px 36px 1fr;
-    gap: 6px;
+    grid-template-columns: 28px 70px 1fr;
+    gap: 8px;
     align-items: baseline;
     padding: 5px 4px;
     border-radius: 5px;

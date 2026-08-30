@@ -217,7 +217,7 @@ def register_handlers(socketio: SocketIO):
             return
 
         room = str(game_id)
-        emit("draw_proposed", {"by": player_id}, room=room)
+        emit("draw_proposed", {"by": game._color(player_id).value}, room=room)
 
     @socketio.on("accept_draw")
     def handle_accept_draw(data):

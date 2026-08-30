@@ -1,4 +1,4 @@
-import { useNavigate, Link } from 'react-router-dom'
+import { useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import styles from './LobbyPage.module.css'
 import logo from '../assets/cathedral-logo.png'
@@ -7,9 +7,11 @@ import CreateGameModal from '../components/CreateGameModal'
 import { useLobby } from '../hooks/useLobby'
 
 export default function LobbyPage() {
-    const [showModal, setShowModal] = useState(false)
+    const location = useLocation()
+    const [showModal, setShowModal] = useState(
+        location.state?.openCreateModal ?? false
+    )
     const { player, logout } = useAuth()
-    const navigate = useNavigate()
     const { lobbies, loading, error, joinLobby, createLobby, cancelLobby } = useLobby()
     const isGuest = player?.anonymous
 
