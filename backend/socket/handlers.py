@@ -182,8 +182,8 @@ def register_handlers(socketio: SocketIO):
                 "captured": result.captured.token_id if result.captured else None,
                 "territories_gained": list(result.territories_gained),
                 "opponent_auto_passed": result.opponent_auto_passed,
-                "move_notation": game._format_move(game.moves[-1]),
-                "move_player": OPPOSITE[game.current_turn].value, #who played move
+                "last_move": game._move_to_entry(game.moves[-1], len(game.moves)),
+                #"move_player": OPPOSITE[game.current_turn].value, #who played move
 
         }, room=room)
 

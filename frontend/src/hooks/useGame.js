@@ -80,6 +80,7 @@ export function useGame(gameId) {
             } else {
                 setDrawOffered(false)
             }
+            setHistory(data.moves_history ?? [])
         })
 
         socket.on('move_made', (data) => {
@@ -92,11 +93,7 @@ export function useGame(gameId) {
             
             updatePieces(data.white_pieces, data.red_pieces, null)
 
-            setHistory(prev => [...prev, {
-                move: prev.length + 1,
-                player: data.move_player,
-                action: data.move_notation
-            }])
+            setHistory(prev => [...prev, data.last_move])
             setSelectedPiece(null)
             setSelectedRotation(0)
         })

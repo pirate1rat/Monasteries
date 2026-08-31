@@ -160,6 +160,15 @@ class Game:
         
         return f"{name} {col_letter}{row_number} {rotation_str}"
 
+    
+    def _move_to_entry(self, move: Move, move_number: int) -> dict:
+        color = move.placement.color
+        return {
+            "move": move_number,
+            "player": color.value,
+            "action": self._format_move(move),
+        }
+
     ##############################
 
     def apply_move(self, player_id: int,  move: Move) -> MoveResult | None:
@@ -253,7 +262,13 @@ class Game:
         else:
             return GameResult.WHITE_WINS
 
-    def get_moves_string(self) -> str:
+    def get_history(self) -> list[dict]:
+        return [
+            self._move_to_entry(move, i + 1)
+            for i, move in enumerate(self.moves)
+        ]
+
+    def get_moves_string(self) -> str: #db uses it
         parts = []
         for move in self.moves:
             p = move.placement
@@ -280,5 +295,5 @@ class Game:
             "status":          self.status.value,
             "result":          self.result.value if self.result else None,
             "draw_offered_by": self.draw_offered_by.value if self.draw_offered_by is not None else None,
-            "moves_history":   self.get_moves_string()
+            "moves_history":   self.get_history()
         }
