@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../services/api'
-import { getSocket } from '../services/socket'
+import { socket } from '../services/socket'
 
 class Player {
     constructor({ player_id = null, username = null, anonymous = false } = {}) {
@@ -19,10 +19,8 @@ function setPlayer(p) {
 }
 
 api.get('auth/me').then(res => {
-    console.log('auth/me response:', res.data)
-    console.log('listeners count:', _listeners.size)
     setPlayer(new Player(res.data))
-    console.log('player after set:', _player)
+    socket.connect()
 })
 
 export function useAuth() {

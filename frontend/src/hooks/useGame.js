@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { PIECE_CATALOG } from '../data/pieceCatalog'
-import { getSocket } from '../services/socket'
-
-const socket = getSocket()
+import { socket } from '../services/socket'
 
 function buildPieceList(piecesFromServer) {
     if(!piecesFromServer) return []
@@ -58,6 +56,8 @@ export function useGame(gameId) {
     }
 
     useEffect(() => {
+        if (!socket) return
+
         socket.emit('join_game', { game_id: gameId })
 
         socket.on('connect', () => setConnected(true))

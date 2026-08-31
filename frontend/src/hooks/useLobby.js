@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom' 
 import api from '../services/api'
-import { getSocket } from '../services/socket'
-
-const socket = getSocket()
+import { socket } from '../services/socket'
 
 export function useLobby() {
     const [lobbies, setLobbies] = useState([])
@@ -12,6 +10,8 @@ export function useLobby() {
     const navigate = useNavigate()
 
     useEffect(() => {
+        if (!socket) return
+
         fetchLobbies()
 
         socket.on('lobby_created', (newLobby) => {
