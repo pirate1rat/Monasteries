@@ -61,7 +61,12 @@ def me():
         session["player_id"] = anon_id
         session["is_anonymous"] = True
         session.permanent = True
-        return jsonify({"status": "ok", "player_id": anon_id})
+        return jsonify({
+            "status": "ok", 
+            "player_id": anon_id, 
+            "username":  None,
+            "anonymous": True,
+        })
 
 #to delete in future
 @auth_bp.route("/anonymous", methods=['POST'])

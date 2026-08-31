@@ -15,6 +15,11 @@ export default function LobbyPage() {
     const { lobbies, loading, error, joinLobby, createLobby, cancelLobby } = useLobby()
     const isGuest = player?.anonymous
 
+    if (!player) {
+        return <div className={styles.page}>Loading...</div>
+    }
+    console.log(player, isGuest, player.playerId)
+
     return (
         <div className={styles.page}>
             <nav className={styles.nav}>
