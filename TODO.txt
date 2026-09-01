@@ -1,10 +1,12 @@
-[+?] draw popup po odświeżeniu
+[+] draw popup po odświeżeniu
 [+] nie wyświetlany timer
 [+] brak ręki przy pierwszym włączaniu?
 [+] bug z brakiem możliwości kładzenia?
+[+] wersja produkcyjna
+[] możliwość odświeżenia gamepage
+[] wracające klocki po zbiciu
 [] fakeowe lobby po new game
 [] brak powrotu do lobby
 [] nadpisujące game ID
 [] zwijanie ręki przeciwnika
-[] wersja produkcyjna
 [] disconnect i recconect

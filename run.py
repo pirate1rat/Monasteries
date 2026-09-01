@@ -8,7 +8,12 @@ from backend.instances import socketio
 
 def run_server():
     flask_app = app_module.create_app()
-    socketio.run(flask_app, debug=False, port=5000, use_reloader=False)
+    socketio.run(
+        flask_app, debug=False,
+        port=5000,
+        use_reloader=False,
+        host="0.0.0.0"
+    )
 
 
 if __name__ == "__main__":

@@ -1,20 +1,27 @@
-from flask import Flask, jsonify
+import os
+
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_migrate import Migrate
 from backend.instances import db, bcrypt, login_manager, socketio
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(
+        __name__,
+        static_folder=os.path.join(os.path.dirname(__file__), "../frontend/dist"),
+        static_url_path=""
+    )
 
     app.config.from_object("backend.config.Config")
 
-    CORS(app, origins="http://localhost:3000")
+    origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5000").split(",")
+    CORS(app, origins=origins, supports_credentials=True)
 
     db.init_app(app)
     bcrypt.init_app(app)
     socketio.init_app(
         app, 
-        cors_allowed_origins="http://localhost:5173",
+        cors_allowed_origins="*",
         logger=True,
         engineio_logger=True
     )
@@ -36,5 +43,14 @@ def create_app():
 
     register_blueprints(app)
     register_handlers(socketio)
+
+    @app.route("/", defaults={"path": ""})
+    @app.route("/<path:path>")
+    def serve_react(path):
+        static = app.static_folder
+        full   = os.path.join(static, path)
+        if path and os.path.exists(full):
+            return send_from_directory(static, path)
+        return send_from_directory(static, "index.html")
 
     return app
