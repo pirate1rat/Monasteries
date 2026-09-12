@@ -1,0 +1,89 @@
+.page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 24px;
+}
+
+.card {
+    width: 100%;
+    max-width: 760px;
+    padding: 40px 48px;
+    border-radius: 14px;
+    background: rgba(20, 20, 20, 0.55);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.loading {
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.markdown h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 24px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.markdown h2 {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text);
+    margin: 32px 0 12px 0;
+}
+
+.markdown h3 {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin: 24px 0 8px 0;
+}
+
+.markdown p {
+    color: var(--text);
+    line-height: 1.7;
+    margin: 0 0 12px 0;
+}
+
+.markdown ul, .markdown ol {
+    color: var(--text);
+    line-height: 1.7;
+    margin: 0 0 12px 0;
+    padding-left: 24px;
+}
+
+.markdown li {
+    margin-bottom: 4px;
+}
+
+.markdown strong {
+    color: #C8A96E;
+    font-weight: 600;
+}
+
+.markdown hr {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin: 32px 0;
+}
+
+.markdown code {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9em;
+}
+
+.markdown img {
+    display: block;
+    max-width: 700px;
+    width: 100%;
+    border-radius: 8px;
+    margin: 12px auto;
+}

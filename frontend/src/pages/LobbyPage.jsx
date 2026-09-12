@@ -25,7 +25,9 @@ export default function LobbyPage() {
             <nav className={styles.nav}>
                 <img src={logo} alt="Logo" className={styles.logo} />
                 <div className={styles.menu}>
-                    <button className={styles.menuBtn}>Tutorials</button>
+                    <Link to='/rules'>
+                        <button className={styles.menuBtn}>Tutorials</button>
+                    </Link>
                     <button className={styles.menuBtn}>Tools</button>
                     <button className={styles.menuBtn}>User</button>
                 </div>
