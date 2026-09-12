@@ -9,13 +9,23 @@ def create_app():
     app = Flask(
         __name__,
         static_folder=os.path.join(os.path.dirname(__file__), "../frontend/dist"),
-        static_url_path=""
+        static_url_path="/static"
     )
 
     app.config.from_object("backend.config.Config")
 
     origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5000").split(",")
     CORS(app, origins=origins, supports_credentials=True)
+
+    @app.route("/", defaults={"path": ""})
+    @app.route("/<path:path>")
+    def serve(path):
+        static = app.static_folder
+        full = os.path.join(static, path)
+        print(f"SERVE CALLED: path={path}")
+        if path and os.path.exists(full):
+            return send_from_directory(static, path)
+        return send_from_directory(static, "index.html")
 
     db.init_app(app)
     bcrypt.init_app(app)
@@ -43,14 +53,5 @@ def create_app():
 
     register_blueprints(app)
     register_handlers(socketio)
-
-    @app.route("/", defaults={"path": ""})
-    @app.route("/<path:path>")
-    def serve_react(path):
-        static = app.static_folder
-        full   = os.path.join(static, path)
-        if path and os.path.exists(full):
-            return send_from_directory(static, path)
-        return send_from_directory(static, "index.html")
 
     return app

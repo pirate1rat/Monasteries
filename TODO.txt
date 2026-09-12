@@ -3,6 +3,8 @@
 [+] brak ręki przy pierwszym włączaniu?
 [+] bug z brakiem możliwości kładzenia?
 [+] wersja produkcyjna
+[+] tutorial
+[+] odswieżanie w login, register, rules
 [] możliwość odświeżenia gamepage
 [] wracające klocki po zbiciu
 [] fakeowe lobby po new game
