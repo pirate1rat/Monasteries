@@ -1,12 +1,16 @@
+import { useNavigate } from 'react-router-dom'
 import styles from './GameControls.module.css'
 
 export function GameControls({ gameOver, drawOffered, onProposeDraw, onAcceptDraw, onRejectDraw, onResign, onRematch, onNewGame, onAnalyze }) {
+    const navigate = useNavigate
+
     if (gameOver) {
         return (
             <div className={styles.actionButtons}>
                 <button className={styles.btnAction} onClick={onRematch}>Rematch</button>
                 <button className={styles.btnAction} onClick={onNewGame}>New Game</button>
                 <button className={styles.btnAnalyze} onClick={onAnalyze}>Analyze</button>
+                <button className={styles.btnLobby} onClick={() => navigate('/')}>Back to Lobby</button>
             </div>
         )
     }

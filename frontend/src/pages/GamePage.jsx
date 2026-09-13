@@ -162,6 +162,7 @@ export default function GamePage() {
                         dragPieceId={drag.piece_id}
                         onDragStart={game.isPlayerTurn ? handleDragStart : () => {}}
                         isFirstMove={game.history.length === 0 && game.isPlayerTurn}
+                        collapsible ={false}
                     />
 
                     <PiecePanel
@@ -172,6 +173,7 @@ export default function GamePage() {
                         dragPieceId={null}
                         onDragStart={() => {}}
                         isFirstMove={false}
+                        collapsible ={true}
                     />
                 </aside>
 

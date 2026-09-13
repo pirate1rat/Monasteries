@@ -1,5 +1,6 @@
 import styles from './PiecePanel.module.css'
 import { PIECE_COLOR } from '../data/colors'
+import { useState } from 'react'
 
 const images = import.meta.glob(
     '/src/assets/pieces/*.png', { 
@@ -85,28 +86,48 @@ export function PieceSlot({ piece, quantity, color, compact, onDragStart, isSele
     )
 }
 
-export function PiecePanel({ title, pieces, color, compact, dragPieceId, onDragStart, isFirstMove }) {
+export function PiecePanel({ title, pieces, color, compact, dragPieceId, onDragStart, isFirstMove, collapsible  }) {
+    const [collapsed, setCollapsed] = useState(false)
+
     return (
         <section className={compact ? styles.panelSmall : styles.panelLarge}>
-            <h3 className={styles.panelTitle}>{title}</h3>
-            <div className={compact ? styles.piecesGridCompact : styles.piecesGrid}>
-                {pieces.map((p, i) => {
-                    const isCathedral = p.piece_id === 0
-                    const disabled = isFirstMove && !isCathedral
-                    return (
-                        <PieceSlot
-                            key={`${p.piece_id}_${i}`}
-                            piece={p}
-                            quantity={p.quantity}
-                            color={color}
-                            compact={compact}
-                            isSelected={dragPieceId === p.piece_id}
-                            onDragStart={!disabled ? onDragStart : undefined}
-                            style={{ opacity: disabled ? 0.2 : 1, pointerEvents: disabled ? 'none' : 'auto' }}
-                        />
-                    )
-                })}
+            <div className={styles.panelHeader}>
+                <h3 className={styles.panelTitle}>{title}</h3>
+                {collapsible && (
+                    <button
+                        className={styles.collapseBtn}
+                        onClick={() => setCollapsed(prev => !prev)}
+                        aria-label={collapsed ? 'Expand' : 'Collapse'} >
+                        <span
+                                className={styles.triangle}
+                                style={{ transform: collapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}
+                            >
+                                ▼
+                            </span>
+                    </button>
+                )}
             </div>
+
+            {!collapsed && (
+                <div className={compact ? styles.piecesGridCompact : styles.piecesGrid}>
+                    {pieces.map((p, i) => {
+                        const isCathedral = p.piece_id === 0
+                        const disabled = isFirstMove && !isCathedral
+                        return (
+                            <PieceSlot
+                                key={`${p.piece_id}_${i}`}
+                                piece={p}
+                                quantity={p.quantity}
+                                color={color}
+                                compact={compact}
+                                isSelected={dragPieceId === p.piece_id}
+                                onDragStart={!disabled ? onDragStart : undefined}
+                                style={{ opacity: disabled ? 0.2 : 1, pointerEvents: disabled ? 'none' : 'auto' }}
+                            />
+                        )
+                    })}
+                </div>
+            )}
         </section>
     )
 }

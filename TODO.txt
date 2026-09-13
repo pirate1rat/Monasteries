@@ -6,9 +6,12 @@
 [+] wersja produkcyjna
 [+] tutorial
 [+] odswieżanie w login, register, rules
-[] możliwość odświeżenia gamepage
 [+] wracające klocki po zbiciu
-[] brak powrotu do lobby
+[+] brak powrotu do lobby
+[+] zwijanie ręki przeciwnika
+
+[] propozycja rematchu
+[] możliwość odświeżenia gamepage
 [] nadpisujące game ID
-[] zwijanie ręki przeciwnika
 [] disconnect i recconect
+[] poprawki wizualne

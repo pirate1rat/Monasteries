@@ -55,3 +55,22 @@
     display: flex;
     flex-direction: column;
 }
+
+.btnLobby {
+    flex: 1;
+    padding: 10px 6px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--gp-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.btnLobby:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--gp-text);
+}
