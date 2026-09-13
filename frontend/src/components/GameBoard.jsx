@@ -1,5 +1,6 @@
 import { BOARD_SIZE, rotateCell } from '../utils/pieceUtils'
 import styles from './GameBoard.module.css'
+import { BOARD_CELL_COLOR } from '../data/colors'
 
 export function GameBoard({ boardData, drag, onBoardMouseUp, onBoardMouseMove, onBoardContextMenu, boardRef, playerColor}) {
     const previewCells = new Set()
@@ -62,20 +63,20 @@ export function GameBoard({ boardData, drag, onBoardMouseUp, onBoardMouseMove, o
                         if (isOccupied) {
                             switch (cell.color) {
                                 case 'white':
-                                    bgColor = 'rgba(200,169,110,0.8)'
+                                    bgColor = BOARD_CELL_COLOR.white
                                     break
                                 case 'red':
-                                    bgColor = 'rgba(110,141,200,0.8)'
+                                    bgColor = BOARD_CELL_COLOR.red
                                     break
                                 case 'neutral':
-                                    bgColor = 'rgba(180,180,180,0.6)'
+                                    bgColor = BOARD_CELL_COLOR.neutral
                                     break
                             }
                         }
                         if (isPreview) bgColor = isValid
-                            ? 'rgba(100,200,120,0.55)'
-                            : 'rgba(200,80,80,0.45)'
-                        if (isInvalid) bgColor = 'rgba(200,80,80,0.45)'
+                            ? BOARD_CELL_COLOR.valid
+                            : BOARD_CELL_COLOR.invalid
+                        if (isInvalid) bgColor = BOARD_CELL_COLOR.invalid
 
                         return (
                             <div

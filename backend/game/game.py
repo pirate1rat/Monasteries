@@ -197,8 +197,9 @@ class Game:
 
         if placement.piece_id in self.pieces_on_hand.get(color, {}):
             self.pieces_on_hand[color][placement.piece_id] -= 1
-            if self.pieces_on_hand[color][placement.piece_id] == 0:
-                del self.pieces_on_hand[color][placement.piece_id]
+
+        if result.captured != None and result.captured.piece_id != 0:
+            self.pieces_on_hand[OPPOSITE[color]][result.captured.piece_id] += 1
         
         self._tick_clock(color)
         self.moves.append(move)

@@ -1,4 +1,5 @@
 import styles from './PiecePanel.module.css'
+import { PIECE_COLOR } from '../data/colors'
 
 const images = import.meta.glob(
     '/src/assets/pieces/*.png', { 
@@ -77,7 +78,7 @@ export function PieceSlot({ piece, quantity, color, compact, onDragStart, isSele
         >
             <div className={styles.pieceShape}>
                 {/* <PieceImage name={piece.name} rotation={piece.rotation}/> */}
-                <PieceGrid cells={piece.cells} color={color} cellSize={cellSize}/>
+                <PieceGrid cells={piece.cells} color={piece.piece_id !== 0 ? color : PIECE_COLOR.neutral} cellSize={cellSize}/>
             </div>
             <span className={styles.pieceCount} style={{ color }}>×{quantity}</span>
         </div>

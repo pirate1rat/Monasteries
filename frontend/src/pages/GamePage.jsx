@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useGame } from '../hooks/useGame'
 import { useParams, useNavigate } from 'react-router-dom'
 import styles from './GamePage.module.css'
+import { getPlayerColor, getOpponentColor } from '../data/colors'
 
 import { PiecePanel } from '../components/PiecePanel'
 import { GameBoard } from '../components/GameBoard'
@@ -36,6 +37,9 @@ export default function GamePage() {
     const navigate = useNavigate()
     const { gameId } = useParams()
     const game = useGame(gameId)
+
+    const PLAYER_COLOR = getPlayerColor(game.playerColor)
+    const OPPONENT_COLOR = getOpponentColor(game.playerColor)
 
     const [drag, setDrag] = useState(EMPTY_DRAG)
     const [showPopup, setShowPopup] = useState(false)
@@ -142,9 +146,6 @@ export default function GamePage() {
             window.removeEventListener('mouseup', handleGlobalMouseUp)
         }
     }, [drag.active])
-
-    const PLAYER_COLOR = game.playerColor === 'white' ? '#C8A96E' : '#6E8DC8'
-    const OPPONENT_COLOR = game.playerColor === 'white' ? '#6E8DC8' : '#C8A96E'
 
     {console.log(game)}
     return (
