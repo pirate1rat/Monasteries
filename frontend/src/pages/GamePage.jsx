@@ -228,6 +228,7 @@ export default function GamePage() {
                         onRematch={() => {}} //TODO
                         onNewGame={handleNewGame}
                         onAnalyze={() => {}} //TODO
+                        onBackToLobby={() => navigate('/')}
                     />
                 </aside>
             </div>
