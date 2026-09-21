@@ -9,9 +9,10 @@
 [+] wracające klocki po zbiciu
 [+] brak powrotu do lobby
 [+] zwijanie ręki przeciwnika
+[+] propozycja rematchu
 
-[] propozycja rematchu
 [] możliwość odświeżenia gamepage
 [] nadpisujące game ID
+
 [] disconnect i recconect
 [] poprawki wizualne

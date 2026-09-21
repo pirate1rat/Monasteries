@@ -1,0 +1,91 @@
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 32px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(10, 10, 10, 0.65);
+    backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.logo {
+    width: 200px;
+    height: auto;
+    display: block;
+    transition: opacity 0.15s;
+}
+
+.logo:hover {
+    opacity: 0.85;
+}
+
+.menu {
+    display: flex;
+    gap: 4px;
+}
+
+.menuBtn {
+    padding: 8px 18px;
+    font-size: 15px;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    color: #ccc;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.menuBtn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.navRight {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.guestBadge {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: #0f3460;
+    color: #aaa;
+}
+
+.username {
+    color: #eaeaea;
+    font-size: 14px;
+}
+
+.btnOutline {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(40, 40, 40, 0.35);
+    color: #f0f0f0;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btnOutline:hover {
+    background: rgba(70, 70, 70, 0.55);
+}
+
+.btnPrimary {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    background: rgba(233, 69, 96, 0.85);
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btnPrimary:hover {
+    background: rgba(233, 69, 96, 1);
+}

@@ -5,6 +5,7 @@ import logo from '../assets/cathedral-logo.png'
 import { useState } from 'react'
 import CreateGameModal from '../components/CreateGameModal'
 import { useLobby } from '../hooks/useLobby'
+import { NavBar } from '../components/NavBar'
 
 export default function LobbyPage() {
     const location = useLocation()
@@ -21,87 +22,60 @@ export default function LobbyPage() {
     console.log(player, isGuest, player.playerId)
 
     return (
-        <div className={styles.page}>
-            <nav className={styles.nav}>
-                <img src={logo} alt="Logo" className={styles.logo} />
-                <div className={styles.menu}>
-                    <Link to='/rules'>
-                        <button className={styles.menuBtn}>Tutorials</button>
-                    </Link>
-                    <button className={styles.menuBtn}>Tools</button>
-                    <button className={styles.menuBtn}>User</button>
-                </div>
+        <>
+            <NavBar/>
+            <div className={styles.page}>
+                <main className={styles.main}>
+                    <div className={styles.tableWrapper}>
+                        <div className={styles.topBar}>
+                            <h2 className={styles.title}>Lobbies</h2>
+                            <button className={styles.btnNew} onClick={() => setShowModal(true)}>Create lobby</button>
+                        </div>
 
-                <div className={styles.navRight}>
-                    {isGuest ? (
-                        <>
-                            <span className={styles.guestBadge}>Guest</span>
-                            <Link to="/login">
-                                <button className={styles.btnOutline}>Sign in</button>
-                            </Link>
-                            <Link to="/register">
-                                <button className={styles.btnPrimary}>Sign up</button>
-                            </Link>
-                        </>
-                    ) : (
-                        <>
-                            <span className={styles.username}>{player?.username ?? 'Player'}</span>
-                            <button className={styles.btnOutline} onClick={logout}>Logout</button>
-                        </>
-                    ) }
-                </div>
-            </nav>
-
-            <main className={styles.main}>
-                <div className={styles.tableWrapper}>
-                    <div className={styles.topBar}>
-                        <h2 className={styles.title}>Lobbies</h2>
-                        <button className={styles.btnNew} onClick={() => setShowModal(true)}>Create lobby</button>
-                    </div>
-
-                    <table className={styles.table}>
-                        <thead>
-                            <tr>
-                                <th>Player</th>
-                                <th>Color</th>
-                                <th>Tempo</th>
-                                <th>Status</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {lobbies.filter(Boolean).map(l => (
-                                <tr key={l.lobby_id} className={l.host_id === player?.playerId ? styles.myRow : styles.row}>
-                                    <td>{l.host_id === player.playerId ? `You (${player?.username ?? 'Guest'})` : l.host_name}</td>
-                                    <td>{l.host_color === 'neutral' ? 'random' : l.host_color}</td>
-                                    <td>
-                                    {l.time_control.base / 60} min
-                                    {l.time_control.increment > 0 ? ` + ${l.time_control.increment}s` : ''}
-                                    </td>
-                                    <td><span className={styles.pillOpen}>Open</span></td>
-                                    <td>
-                                        {l.host_id === player?.playerId ?
-                                        <button className={styles.cancelBtn}
-                                                onClick={() => cancelLobby(l.lobby_id)}>
-                                            Cancel
-                                        </button>
-                                        : <button className={styles.joinBtn}
-                                                onClick={() => joinLobby(l.lobby_id)}>
-                                            Join
-                                        </button>
-                                    }
-                                    </td>
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>Player</th>
+                                    <th>Color</th>
+                                    <th>Tempo</th>
+                                    <th>Status</th>
+                                    <th></th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </main>
+                            </thead>
+                            <tbody>
+                                {lobbies.filter(Boolean).map(l => (
+                                    <tr key={l.lobby_id} className={l.host_id === player?.playerId ? styles.myRow : styles.row}>
+                                        <td>{l.host_id === player.playerId ? `You (${player?.username ?? 'Guest'})` : l.host_name}</td>
+                                        <td>{l.host_color === 'neutral' ? 'random' : l.host_color}</td>
+                                        <td>
+                                        {l.time_control.base / 60} min
+                                        {l.time_control.increment > 0 ? ` + ${l.time_control.increment}s` : ''}
+                                        </td>
+                                        <td><span className={styles.pillOpen}>Open</span></td>
+                                        <td>
+                                            {l.host_id === player?.playerId ?
+                                            <button className={styles.cancelBtn}
+                                                    onClick={() => cancelLobby(l.lobby_id)}>
+                                                Cancel
+                                            </button>
+                                            : <button className={styles.joinBtn}
+                                                    onClick={() => joinLobby(l.lobby_id)}>
+                                                Join
+                                            </button>
+                                        }
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </main>
 
-            {showModal && (
-                <CreateGameModal onClose={() => setShowModal(false)}
-                onCreate={createLobby} />
-            )}
-        </div>
+                {showModal && (
+                    <CreateGameModal onClose={() => setShowModal(false)}
+                    onCreate={createLobby} />
+                )}
+            </div>
+        </>
     )
 }
