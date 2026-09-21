@@ -61,6 +61,7 @@ export function useGame(gameId) {
 
     useEffect(() => {
         if (!socket) return
+        gameIdRef.current = gameId
 
         socket.emit('join_game', { game_id: gameId })
 
@@ -145,6 +146,7 @@ export function useGame(gameId) {
             socket.off('draw_rejected')
             socket.off('rematch_proposed')
             socket.off('rematch_rejected')
+            socket.off('rematch_started')
             socket.off('opponent_disconnected')
             socket.off('opponent_reconnected')
             socket.off('error')
