@@ -1,6 +1,6 @@
 export const PIECE_COLOR = {
     'white': '#e6cfa7',
-    'red': '#6d0870',
+    'red': '#700808',
     'neutral': '#B0B0B0'
 }
 
@@ -18,8 +18,8 @@ export const BOARD_CELL_COLOR = {
     'white': hexToRgba(PIECE_COLOR.white, COLOR_CELL_ALPHA),
     'red': hexToRgba(PIECE_COLOR.red, COLOR_CELL_ALPHA),
     'neutral': hexToRgba(PIECE_COLOR.neutral, COLOR_CELL_ALPHA),
-    'valid': 'rgba(61, 255, 100, 0.55)', //'rgba(100,200,120,0.55)',
-    'invalid': 'rgba(255, 0, 0, 0.45)'
+    'valid': 'rgba(61, 255, 100, 0.55)', //'rgba(90, 207, 114, 0.55)',
+    'invalid': 'rgba(255, 0, 0, 0.65)'
 }
 
 export function getPlayerColor(color) {

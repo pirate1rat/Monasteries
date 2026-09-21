@@ -225,7 +225,10 @@ export default function GamePage() {
                         onAcceptDraw={game.acceptDraw}
                         onRejectDraw={game.rejectDraw}
                         onResign={game.resign}
-                        onRematch={() => {}} //TODO
+                        rematchOffered={game.rematchOffered}
+                        onProposeRematch={game.proposeRematch}
+                        onAcceptRematch={game.acceptRematch}
+                        onRejectRematch={game.rejectRematch}
                         onNewGame={handleNewGame}
                         onAnalyze={() => {}} //TODO
                         onBackToLobby={() => navigate('/')}

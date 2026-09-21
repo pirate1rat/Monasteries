@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { PIECE_CATALOG } from '../data/pieceCatalog'
 import { socket } from '../services/socket'
+import { useNavigate } from 'react-router-dom'
 
 function buildPieceList(piecesFromServer) {
     if(!piecesFromServer) return []
@@ -32,6 +33,7 @@ export function useGame(gameId) {
     const [status, setStatus] = useState('in_progress')
     const [result, setResult] = useState(null)
     const [drawOffered, setDrawOffered] = useState(false)
+    const [rematchOffered, setRematchOffered] = useState(false)
     const [oppDisconnected, setOppDisconnected] = useState(false)
     const [reconnectTimer, setReconnectTimer] = useState(null)
     const [error, setError] = useState(null)
@@ -54,6 +56,8 @@ export function useGame(gameId) {
             setOppPieces(buildPieceList(whitePieces))
         }
     }
+    
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (!socket) return
@@ -110,6 +114,17 @@ export function useGame(gameId) {
         })
         socket.on('draw_rejected', () => setDrawOffered(false))
 
+        socket.on('rematch_proposed', (data) => {
+            if (data.by !== playerColorRef.current) {
+                setRematchOffered(true)
+            }
+        })
+        socket.on('rematch_rejected', () => setRematchOffered(false))
+
+        socket.on('rematch_started', (data) => {
+            navigate(`/game/${data.game_id}`)
+        })
+
         socket.on('opponent_disconnected', (data) => {
             setOppDisconnected(true)
             setReconnectTimer(data.reconnect_time_left)
@@ -128,6 +143,8 @@ export function useGame(gameId) {
             socket.off('game_over')
             socket.off('draw_proposed')
             socket.off('draw_rejected')
+            socket.off('rematch_proposed')
+            socket.off('rematch_rejected')
             socket.off('opponent_disconnected')
             socket.off('opponent_reconnected')
             socket.off('error')
@@ -159,6 +176,20 @@ export function useGame(gameId) {
     const rejectDraw = useCallback(() => {
         socket.emit('reject_draw', { game_id: gameIdRef.current })
         setDrawOffered(false)
+    }, [])
+
+    const proposeRematch = useCallback(() => {
+        socket.emit('propose_rematch', { game_id: gameIdRef.current })
+    }, [])
+
+    const acceptRematch = useCallback(() => {
+        socket.emit('accept_rematch', { game_id: gameIdRef.current })
+        setRematchOffered(false)
+    }, [])
+
+    const rejectRematch = useCallback(() => {
+        socket.emit('reject_rematch', { game_id: gameIdRef.current })
+        setRematchOffered(false)
     }, [])
     
     //piece selection
@@ -193,6 +224,7 @@ export function useGame(gameId) {
 
         // interactions
         drawOffered,
+        rematchOffered,
         oppDisconnected,
         reconnectTimer,
 
@@ -212,5 +244,8 @@ export function useGame(gameId) {
         proposeDraw,
         acceptDraw,
         rejectDraw,
+        proposeRematch,
+        acceptRematch,
+        rejectRematch,
     }
 }

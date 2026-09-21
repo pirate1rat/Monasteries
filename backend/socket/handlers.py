@@ -255,3 +255,57 @@ def register_handlers(socketio: SocketIO):
 
         room = str(game_id)
         emit("draw_rejected", {}, room=room)
+
+    @socketio.on("propose_rematch")
+    def handle_propose_rematch(data):
+        player_id = get_current_player_id()
+        game_id = int(data.get("game_id"))
+
+        game = game_manager.get_game(game_id)
+        if game is None:
+            emit("error", {"code": "GAME_NOT_FOUND"})
+            return
+
+        if not game.propose_rematch(player_id):
+            emit("error", {"code": "REMATCH_ALREADY_OFFERED"})
+            return
+
+        room = str(game_id)
+        emit("rematch_proposed", {"by": game._color(player_id).value}, room=room)
+
+    @socketio.on("accept_rematch")
+    def handle_accept_rematch(data):
+        player_id = get_current_player_id()
+        game_id = int(data.get("game_id"))
+
+        game = game_manager.get_game(game_id)
+        if game is None:
+            emit("error", {"code": "GAME_NOT_FOUND"})
+            return
+
+        result = game.accept_rematch(player_id)
+        if result is None:
+            emit("error", {"code": "INVALID_REMATCH_ACCEPT"})
+            return
+
+        new_game = game_manager.create_rematch(game)
+        room = str(game_id)
+        emit("rematch_started", { "game_id": new_game.game_id }, room=room)
+
+    @socketio.on("reject_rematch")
+    def handle_reject_rematch(data):
+        player_id = get_current_player_id()
+        game_id = int(data.get("game_id"))
+
+        game = game_manager.get_game(game_id)
+        if game is None:
+            emit("error", {"code": "GAME_NOT_FOUND"})
+            return
+
+        result = game.reject_rematch(player_id)
+        if not result:
+            emit("error", {"code": "INVALID_REMATCH_REJECTION"})
+            return
+
+        room = str(game_id)
+        emit("rematch_rejected", {}, room=room)

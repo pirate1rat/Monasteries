@@ -45,6 +45,7 @@ class Game:
         self.status = GameStatus.IN_PROGRESS
         self.result: GameResult | None = None
         self.draw_offered_by: PlayerColor | None = None # player_id
+        self.rematch_offered_by: PlayerColor | None = None # player_id
 
         # pieces on player's hand   piece_id, quantity
         self.pieces_on_hand: dict[PlayerColor, dict[int, int]] = self._init_pieces()
@@ -241,6 +242,25 @@ class Game:
         if self.draw_offered_by is None:
             return False
         self.draw_offered_by = None
+        return True
+
+    def propose_rematch(self, player_id) -> bool:
+            if self.rematch_offered_by is not None:
+                return False
+            self.rematch_offered_by = self._color(player_id)
+            return True
+    
+    def accept_rematch(self, player_id) -> GameResult:
+        if self.rematch_offered_by is None or self.rematch_offered_by == self._color(player_id):
+            return None
+        self.rematch_offered_by = None
+        self._finish(GameResult.DRAW)
+        return GameResult.DRAW
+
+    def reject_rematch(self, player_id) -> bool:
+        if self.rematch_offered_by is None:
+            return False
+        self.rematch_offered_by = None
         return True
 
     def on_player_disconnect(self, player_id, on_timeout):

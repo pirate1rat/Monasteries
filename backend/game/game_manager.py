@@ -69,6 +69,22 @@ class GameManager:
             time_control
         )
 
+    def create_rematch(self, old_game: "Game"):
+        self._next_game_id += 1
+
+        white_id = old_game.players.inverse[PlayerColor.RED]
+        red_id = old_game.players.inverse[PlayerColor.WHITE]
+
+        game = Game(
+            self._next_game_id,
+            white_id,
+            red_id,
+            old_game.time_control
+        )
+
+        self.active_games[game.game_id] = game
+        return game
+
     def join_lobby(self, lobby_id, player_id) -> Game | None:
         """
         Pairs the player with the host, creates a Game, and removes the lobby. 

@@ -26,6 +26,7 @@ dist-ssr
 #python
 .venv/
 __pycache__/
+.pytest_cache/
 
 #SQLite
 *.db
