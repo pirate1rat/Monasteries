@@ -11,8 +11,9 @@
 [+] zwijanie ręki przeciwnika
 [+] propozycja rematchu
 
-[] możliwość odświeżenia gamepage
+[] dev version
 [] nadpisujące game ID
-
 [] disconnect i recconect
+[] testy
+[] możliwość odświeżenia gamepage
 [] poprawki wizualne

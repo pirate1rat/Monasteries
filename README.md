@@ -16,7 +16,7 @@ The project started as a way to build something non-trivial end-to-end: a real g
 
 -  **Real-time multiplayer** over WebSocket (no refresh needed — moves appear instantly)
 -  **Guest play** — jump in without creating an account
--  **Time controls** with Fischer increment
+-  **Time controls** with bonus time increment
 -  **Move history** panel
 -  **Draw offers, resignation, and rematch** with automatic color swap
 -  **Territory capture** — enclosed areas are detected via BFS and pieces are removed automatically
@@ -128,7 +128,7 @@ SECRET_KEY=paste-a-long-random-string-here
 # ALLOWED_ORIGINS=http://192.168.1.10:5000
 ```
 
-Generate a secret key with:
+Generate a secret key with for example:
 
 ```bash
 python -c "import secrets; print(secrets.token_hex(32))"
