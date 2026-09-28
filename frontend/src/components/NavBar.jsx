@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import logo from '../assets/cathedral-logo.png'
+import logo from '../assets/monasteries-logo.png'
 import styles from './NavBar.module.css'
 
 export function NavBar() {

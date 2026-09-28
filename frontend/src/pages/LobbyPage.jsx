@@ -1,7 +1,6 @@
 import { useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import styles from './LobbyPage.module.css'
-import logo from '../assets/cathedral-logo.png'
 import { useState } from 'react'
 import CreateGameModal from '../components/CreateGameModal'
 import { useLobby } from '../hooks/useLobby'
