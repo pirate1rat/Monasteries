@@ -1,8 +1,8 @@
-"""Initial migration
+"""Initial migration after renaming
 
-Revision ID: b649a7060859
+Revision ID: 1831a98fb2ae
 Revises: 
-Create Date: 2026-07-24 11:37:38.907859
+Create Date: 2026-09-29 12:53:51.458458
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b649a7060859'
+revision = '1831a98fb2ae'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -39,7 +39,7 @@ def upgrade():
     sa.Column('moves', sa.Text(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('started_at', sa.DateTime(), nullable=False),
-    sa.Column('finished_at', sa.DateTime(), nullable=False),
+    sa.Column('finished_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['red_user_id'], ['users.user_id'], ),
     sa.ForeignKeyConstraint(['white_user_id'], ['users.user_id'], ),
     sa.PrimaryKeyConstraint('game_id')
