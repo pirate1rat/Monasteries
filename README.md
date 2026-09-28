@@ -124,7 +124,7 @@ Then edit `.env`:
 
 ```
 SECRET_KEY=paste-a-long-random-string-here
-# DATABASE_URL=sqlite:///cathedral.db
+# DATABASE_URL=sqlite:///monasteries.db
 # ALLOWED_ORIGINS=http://192.168.1.10:5000
 ```
 
@@ -225,12 +225,6 @@ All settings are optional environment variables (set them in `.env`):
 - Writing a **BFS-based board solver** from scratch and making it fast enough not to block the event loop
 - Designing a **clean Python API** for the game engine so it could be tested without any web framework involved
 - Managing **React state for real-time UI** — syncing socket events with component state without race conditions
-
----
-
-## Inspiration
-
-Monasteries is a fan-made digital adaptation of **Cathedral** (1978, Robert Moore). The original game uses beautifully crafted wooden pieces representing medieval buildings — this project is a personal, non-commercial tribute to it.
 
 ---
 
